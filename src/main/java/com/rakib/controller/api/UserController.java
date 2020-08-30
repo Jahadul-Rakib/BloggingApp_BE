@@ -1,4 +1,4 @@
-package com.rakib.controller;
+package com.rakib.controller.api;
 
 import java.util.List;
 
