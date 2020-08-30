@@ -1,6 +1,5 @@
 package com.rakib.utilities;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,8 +10,11 @@ import com.rakib.domain.repo.UserInfoRepo;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	@Autowired
-	UserInfoRepo userInfo;
+	private final UserInfoRepo userInfo;
+
+	public UserDetailsServiceImpl(UserInfoRepo userInfo) {
+		this.userInfo = userInfo;
+	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

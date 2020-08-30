@@ -45,7 +45,7 @@ public class UserInfo implements UserDetails, Serializable {
 
     @Override
     public String getUsername() {
-        return this.userPhone;
+        return this.userEmail;
     }
 
     @Override
