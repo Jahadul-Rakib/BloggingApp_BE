@@ -4,6 +4,7 @@ import com.rakib.domain.UserRole;
 import com.rakib.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo saveUser(UserDTO user) {
+    public UserInfo saveUser(UserDTO user) throws DuplicateName {
         List<UserRole> roles = new ArrayList<>();
         user.getRoleId().forEach(value -> {
             UserRole role = userRoleRepo.getOne(value);
@@ -54,6 +55,11 @@ public class UserServiceImpl implements UserService {
             }
             roles.add(role);
         });
+
+        Optional<UserInfo> byUserName = userInfoRepo.getUserInfoByUserName(user.getUserName());
+        if (byUserName.isPresent()){
+            throw new DuplicateName("User Email Already Exist.");
+        }
 
         UserInfo userInfo = new UserInfo();
         userInfo.setUserName(user.getUserName());

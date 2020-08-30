@@ -8,6 +8,7 @@ import com.rakib.service.dto.UserDTO;
 import com.rakib.service.RoleService;
 import com.rakib.utilities.JWTUtilities;
 import lombok.NonNull;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +42,7 @@ public class UserController {
 
     @PostMapping("adduser")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) {
+    public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) throws DuplicateName {
         UserInfo saveUser = userService.saveUser(user);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveUser));
     }
