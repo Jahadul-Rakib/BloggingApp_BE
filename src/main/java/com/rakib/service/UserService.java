@@ -9,4 +9,5 @@ public interface UserService {
 	UserInfo saveUser(UserDTO userInfo);
 	UserInfo getUserByEmail(String email);
 	List<UserInfo> getUsers();
+	UserInfo updateUser(long id, UserDTO userDTO) throws Exception;
 }

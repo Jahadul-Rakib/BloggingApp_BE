@@ -7,6 +7,7 @@ import com.rakib.service.dto.RequestData;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.service.RoleService;
 import com.rakib.utilities.JWTUtilities;
+import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,6 +60,12 @@ public class UserController {
         UserInfo userInfo = userService.getUserByEmail(email);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
+    @PutMapping("user/{id}")
+    public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,@RequestBody(required = false) UserDTO userDTO) throws Exception {
+        UserInfo userInfo = userService.updateUser(id, userDTO);
+        return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
+    }
+
 
     @PostMapping("login")
     public ResponseEntity<?> getLogin(@RequestBody RequestData requestData) {
@@ -67,6 +74,7 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtUtilities.jwtTokenProvider();
-        return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token));
+        return ResponseEntity.ok().header("Authorization",
+                "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token));
     }
 }

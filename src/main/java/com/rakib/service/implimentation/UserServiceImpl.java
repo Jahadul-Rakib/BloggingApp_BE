@@ -12,6 +12,9 @@ import com.rakib.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -54,6 +57,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserInfo> getUsers() {
         return userInfoRepo.findAll();
+    }
+
+    @Override
+    public UserInfo updateUser(long id, UserDTO userDTO) throws Exception {
+        Optional<UserInfo> userInfo = userInfoRepo.findById(id);
+        if (userInfo.isPresent()) {
+            if (nonNull(userDTO.getUserName())) {
+                userInfo.get().setUserName(userDTO.getUserName());
+            }
+            if (nonNull(userDTO.getUserEmail())) {
+                userInfo.get().setUserEmail(userDTO.getUserEmail());
+            }
+            if (nonNull(userDTO.getUserPassword())) {
+                userInfo.get().setUserPassword(userDTO.getUserPassword());
+            }
+            if (userDTO.isActive()) {
+                userInfo.get().setActive(userDTO.isActive());
+            }
+
+            return userInfoRepo.save(userInfo.get());
+        }
+        throw new Exception("User Not Found.");
     }
 
 }
