@@ -1,7 +1,7 @@
 package com.rakib.service.implimentation;
 
 import com.rakib.domain.UserRole;
-import com.rakib.enums.Roles;
+import com.rakib.domain.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;

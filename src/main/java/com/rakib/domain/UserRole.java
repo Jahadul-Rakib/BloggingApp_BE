@@ -1,5 +1,5 @@
 package com.rakib.domain;
-import com.rakib.enums.Roles;
+import com.rakib.domain.enums.Roles;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 

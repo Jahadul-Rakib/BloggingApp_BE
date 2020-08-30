@@ -1,7 +1,7 @@
 package com.rakib.domain.repo;
 
 
-import com.rakib.enums.Roles;
+import com.rakib.domain.enums.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.rakib.domain.UserRole;

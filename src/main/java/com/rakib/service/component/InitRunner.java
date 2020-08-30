@@ -4,7 +4,7 @@ import com.rakib.domain.UserInfo;
 import com.rakib.domain.UserRole;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.domain.repo.UserRoleRepo;
-import com.rakib.enums.Roles;
+import com.rakib.domain.enums.Roles;
 import com.rakib.service.RoleService;
 import com.rakib.service.dto.UserDTO;
 import org.springframework.boot.CommandLineRunner;
