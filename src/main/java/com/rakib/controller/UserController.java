@@ -22,7 +22,7 @@ import javax.validation.Valid;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api/v1/")
+@RequestMapping("/api/v1/")
 public class UserController {
 
     private final AuthenticationManager authenticationManager;
