@@ -50,7 +50,7 @@ public class InitRunner implements CommandLineRunner {
     }
 
     private void saveUser(UserDTO user) {
-        Optional<UserInfo> userChecking = userInfoRepo.getUserInfoByUserName(user.getUserEmail());
+        Optional<UserInfo> userChecking = userInfoRepo.getUserInfoByUserName(user.getUserName());
         if (!userChecking.isPresent()) {
             List<UserRole> roles = new ArrayList<>();
             user.getRoleId().forEach(value -> {
@@ -66,11 +66,9 @@ public class InitRunner implements CommandLineRunner {
             userInfo.setActive(user.isActive());
             userInfo.setRole(roles);
 
-            try {
-                userInfoRepo.save(userInfo);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+
+            userInfoRepo.save(userInfo);
+
         }
     }
 

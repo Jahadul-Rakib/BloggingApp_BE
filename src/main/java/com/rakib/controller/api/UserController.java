@@ -67,7 +67,8 @@ public class UserController {
     }
     @PutMapping("user/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','BLOGGER')")
-    public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,@RequestBody(required = false) UserDTO userDTO) throws Exception {
+    public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,
+                                        @RequestBody(required = false) UserDTO userDTO) throws Exception {
         UserInfo userInfo = userService.updateUser(id, userDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
