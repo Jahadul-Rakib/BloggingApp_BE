@@ -29,7 +29,7 @@ public class UserInfo implements UserDetails, Serializable {
     private String userPassword;
     private boolean active;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     private List<UserRole> role;
 
 

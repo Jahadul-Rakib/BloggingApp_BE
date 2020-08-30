@@ -1,8 +1,11 @@
 package com.rakib.service.implimentation;
 
 import com.rakib.domain.UserRole;
+import com.rakib.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +13,9 @@ import com.rakib.domain.UserInfo;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.service.UserService;
 
+import java.rmi.activation.ActivationException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +40,18 @@ public class UserServiceImpl implements UserService {
         List<UserRole> roles = new ArrayList<>();
         user.getRoleId().forEach(value -> {
             UserRole role = userRoleRepo.getOne(value);
+            if (role.equals(Roles.ADMIN)) {
+                Collection<? extends GrantedAuthority> admin = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+                admin.forEach(grantedAuthority -> {
+                    if (grantedAuthority.equals(Roles.ADMIN)) {
+                        try {
+                            throw new ActivationException("To make an admin, you should be also an admin.");
+                        } catch (ActivationException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
             roles.add(role);
         });
 
@@ -43,7 +60,7 @@ public class UserServiceImpl implements UserService {
         userInfo.setUserEmail(user.getUserEmail());
         userInfo.setUserPhone(user.getUserPhone());
         userInfo.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
-        userInfo.setActive(user.isActive());
+        userInfo.setActive(false);
         userInfo.setRole(roles);
 
         return userInfoRepo.save(userInfo);

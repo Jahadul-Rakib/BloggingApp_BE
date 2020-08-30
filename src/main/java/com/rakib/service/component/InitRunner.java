@@ -2,55 +2,82 @@ package com.rakib.service.component;
 
 import com.rakib.domain.UserInfo;
 import com.rakib.domain.UserRole;
+import com.rakib.domain.repo.UserInfoRepo;
+import com.rakib.domain.repo.UserRoleRepo;
 import com.rakib.enums.Roles;
 import com.rakib.service.RoleService;
-import com.rakib.service.UserService;
 import com.rakib.service.dto.UserDTO;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 
-//@Component
+@Component
 public class InitRunner implements CommandLineRunner {
-    private final UserService userService;
+    private final UserInfoRepo userInfoRepo;
     private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRoleRepo userRoleRepo;
 
-    public InitRunner(UserService userService, RoleService roleService) {
-        this.userService = userService;
+    public InitRunner(UserInfoRepo userInfoRepo, RoleService roleService, PasswordEncoder passwordEncoder, UserRoleRepo userRoleRepo) {
+        this.userInfoRepo = userInfoRepo;
         this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
+        this.userRoleRepo = userRoleRepo;
     }
 
     @Override
-    public void run(String... args) throws Exception {
-
-        try {
-            addUser();
-        }catch (Exception e){
-            e.getMessage();
-        }
-
-
+    public void run(String... args) {
+        addUser();
     }
 
-    private void addUser( ) {
+    private void addUser() {
         UserRole role = addRoles();
 
         UserDTO userDTO = new UserDTO();
         userDTO.setUserName("Admin");
-        userDTO.setUserEmail("rakib38@gmail.com");
+        userDTO.setUserEmail("rakib38@diit.info");
         userDTO.setUserPassword("123456");
         userDTO.setUserPhone("01680023583");
-        userDTO.setRoleId(Arrays.asList(role.getId()));
+        userDTO.setRoleId(Collections.singletonList(role.getId()));
         userDTO.setActive(true);
-        userService.saveUser(userDTO);
+        saveUser(userDTO);
+    }
+
+    private void saveUser(UserDTO user) {
+        Optional<UserInfo> userChecking = userInfoRepo.getUserInfoByUserName(user.getUserEmail());
+        if (!userChecking.isPresent()) {
+            List<UserRole> roles = new ArrayList<>();
+            user.getRoleId().forEach(value -> {
+                UserRole role = userRoleRepo.getOne(value);
+                roles.add(role);
+            });
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.setUserName(user.getUserName());
+            userInfo.setUserEmail(user.getUserEmail());
+            userInfo.setUserPhone(user.getUserPhone());
+            userInfo.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
+            userInfo.setActive(user.isActive());
+            userInfo.setRole(roles);
+
+            try {
+                userInfoRepo.save(userInfo);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     private UserRole addRoles() {
         UserRole roleAdmin = new UserRole();
         roleAdmin.setUserRole(Roles.ADMIN);
-        UserRole role = roleService.saveRole(roleAdmin);
-        return role;
+        Optional<UserRole> byRole = userRoleRepo.findByUserRole(Roles.ADMIN);
+        return byRole.orElseGet(() -> roleService.saveRole(roleAdmin));
     }
 }

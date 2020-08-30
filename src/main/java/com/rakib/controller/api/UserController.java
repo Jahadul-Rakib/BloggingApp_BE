@@ -9,6 +9,7 @@ import com.rakib.service.RoleService;
 import com.rakib.utilities.JWTUtilities;
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,28 +40,33 @@ public class UserController {
     }
 
     @PostMapping("adduser")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) {
         UserInfo saveUser = userService.saveUser(user);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveUser));
     }
 
     @PostMapping("addrole")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> saveRole(@RequestBody UserRole userRole) {
         UserRole saveRole = roleService.saveRole(userRole);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveRole));
     }
     @GetMapping("user")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUser() {
         List<UserInfo> userInfo = userService.getUsers();
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @GetMapping("user/{email}")
+    @PreAuthorize("hasAnyRole('ADMIN','BLOGGER')")
     public ResponseEntity<?> getUser(@PathVariable String email) {
         UserInfo userInfo = userService.getUserByEmail(email);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
     @PutMapping("user/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','BLOGGER')")
     public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,@RequestBody(required = false) UserDTO userDTO) throws Exception {
         UserInfo userInfo = userService.updateUser(id, userDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
@@ -68,6 +74,7 @@ public class UserController {
 
 
     @PostMapping("login")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getLogin(@RequestBody RequestData requestData) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                 (requestData.getUsername(), requestData.getPassword()));
