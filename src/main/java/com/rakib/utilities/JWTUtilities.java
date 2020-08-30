@@ -1,5 +1,6 @@
 package com.rakib.utilities;
 
+import com.rakib.config.AppConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,7 @@ public class JWTUtilities {
             System.out.println("Not Authenticate !!!");
         }
 
-        String Key = "SECUREOFFNOSECURITYqqqqqqqqqqwwwwwwwwwwwwwwweeeeeeeeeeeeeeeeee1111111111111111111333333333333333333333333333";
+        String Key = AppConstants.KEY;
         String token = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("authorities", authentication.getAuthorities().toString())

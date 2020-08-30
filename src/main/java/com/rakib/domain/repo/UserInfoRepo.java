@@ -5,7 +5,5 @@ import org.springframework.stereotype.Repository;
 import com.rakib.domain.UserInfo;
 @Repository
 public interface UserInfoRepo extends JpaRepository<UserInfo, Long> {
-	
 	UserInfo getUserInfoByUserEmail(String userEmail);
-
 }

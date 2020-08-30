@@ -1,4 +1,4 @@
-package com.rakib.service.impl;
+package com.rakib.service.implimentation;
 import org.springframework.stereotype.Service;
 import com.rakib.domain.UserRole;
 import com.rakib.domain.repo.UserRoleRepo;
@@ -12,7 +12,9 @@ public class RoleServiceImpl implements RoleService {
 
 
 	@Override
-	public UserRole saveRole(UserRole role) {
+	public UserRole saveRole(UserRole userRole) {
+		UserRole role = new UserRole();
+		role.setUserRole(userRole.getUserRole());
 		return roleRepo.save(role);
 	}
 
