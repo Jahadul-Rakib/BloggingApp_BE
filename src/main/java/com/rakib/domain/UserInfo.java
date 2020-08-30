@@ -14,7 +14,6 @@ import javax.validation.constraints.Email;
 
 @Data
 @Entity
-@Table
 public class UserInfo implements UserDetails, Serializable {
 
     private static final long serialVersionUID = -6711981647093518770L;

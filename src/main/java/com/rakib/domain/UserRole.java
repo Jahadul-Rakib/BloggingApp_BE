@@ -8,7 +8,6 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table
 public class UserRole implements GrantedAuthority {
 
 	@Id

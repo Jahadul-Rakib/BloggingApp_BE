@@ -27,17 +27,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.userService = userService;
     }
 
-    private static final String[] AUTH_WHITELIST = {
-            "/v2/api-docs",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/webjars/**",
-            "/**"
-    };
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -45,7 +34,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .cors().disable()
                 .authorizeRequests()
-                .antMatchers(AUTH_WHITELIST).permitAll()
                 .antMatchers("/api/v1/**").permitAll()
                 .anyRequest()
                 .authenticated()
