@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
         List<UserRole> roles = new ArrayList<>();
         user.getRoleId().forEach(value -> {
             UserRole role = userRoleRepo.getOne(value);
-            if (role.equals(Roles.ADMIN)) {
+            if (role.getUserRole().equals(Roles.ADMIN)) {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
                 boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
