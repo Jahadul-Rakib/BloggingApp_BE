@@ -21,7 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.rakib.domain.UserInfo;
-import com.rakib.domain.UserRole;
+import com.rakib.domain.Role;
 import com.rakib.service.UserService;
 
 import javax.validation.Valid;
@@ -53,8 +53,8 @@ public class UserController {
 
     @PostMapping("addrole")
     //@PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> saveRole(@RequestBody UserRole userRole) {
-        UserRole saveRole = roleService.saveRole(userRole);
+    public ResponseEntity<?> saveRole(@RequestBody Role userRole) {
+        Role saveRole = roleService.saveRole(userRole);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveRole));
     }
 

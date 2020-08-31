@@ -1,7 +1,7 @@
 package com.rakib.service;
 
-import com.rakib.domain.UserRole;
+import com.rakib.domain.Role;
 
 public interface RoleService {
-	UserRole saveRole(UserRole role);
+	Role saveRole(Role role);
 }

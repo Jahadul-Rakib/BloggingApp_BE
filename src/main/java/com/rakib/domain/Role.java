@@ -8,15 +8,15 @@ import javax.persistence.*;
 
 @Data
 @Entity
-public class UserRole implements GrantedAuthority {
+public class Role implements GrantedAuthority {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-	private Roles userRole;
+	private Roles name;
 
 	@Override
 	public String getAuthority() {
-		return String.valueOf(this.userRole);
+		return String.valueOf(this.name);
 	}
 }

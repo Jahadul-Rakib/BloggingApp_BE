@@ -1,6 +1,6 @@
 package com.rakib.service.implimentation;
 
-import com.rakib.domain.UserRole;
+import com.rakib.domain.Role;
 import com.rakib.domain.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
@@ -42,10 +42,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfo saveUser(UserDTO user) throws DuplicateName {
-        List<UserRole> roles = new ArrayList<>();
+        List<Role> roles = new ArrayList<>();
         user.getRoleId().forEach(value -> {
-            UserRole role = userRoleRepo.getOne(value);
-            if (role.getUserRole().equals(Roles.ADMIN)) {
+            Role role = userRoleRepo.getOne(value);
+            if (role.getName().equals(Roles.ADMIN)) {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
                 boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));

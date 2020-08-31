@@ -29,7 +29,7 @@ public class UserInfo implements UserDetails, Serializable {
     private boolean active;
 
     @ManyToMany
-    private List<UserRole> role;
+    private List<Role> role;
 
 
     @Override

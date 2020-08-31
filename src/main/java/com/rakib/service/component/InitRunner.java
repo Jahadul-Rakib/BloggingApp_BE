@@ -1,7 +1,7 @@
 package com.rakib.service.component;
 
 import com.rakib.domain.UserInfo;
-import com.rakib.domain.UserRole;
+import com.rakib.domain.Role;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.domain.repo.UserRoleRepo;
 import com.rakib.domain.enums.Roles;
@@ -37,7 +37,7 @@ public class InitRunner implements CommandLineRunner {
     }
 
     private void addUser() {
-        UserRole role = addRoles();
+        Role role = addRoles();
 
         UserDTO userDTO = new UserDTO();
         userDTO.setUserName("Admin");
@@ -52,9 +52,9 @@ public class InitRunner implements CommandLineRunner {
     private void saveUser(UserDTO user) {
         Optional<UserInfo> userChecking = userInfoRepo.getUserInfoByUserName(user.getUserName());
         if (!userChecking.isPresent()) {
-            List<UserRole> roles = new ArrayList<>();
+            List<Role> roles = new ArrayList<>();
             user.getRoleId().forEach(value -> {
-                UserRole role = userRoleRepo.getOne(value);
+                Role role = userRoleRepo.getOne(value);
                 roles.add(role);
             });
 
@@ -72,10 +72,10 @@ public class InitRunner implements CommandLineRunner {
         }
     }
 
-    private UserRole addRoles() {
-        UserRole roleAdmin = new UserRole();
-        roleAdmin.setUserRole(Roles.ADMIN);
-        Optional<UserRole> byRole = userRoleRepo.findByUserRole(Roles.ADMIN);
+    private Role addRoles() {
+        Role roleAdmin = new Role();
+        roleAdmin.setName(Roles.ADMIN);
+        Optional<Role> byRole = userRoleRepo.findByName(Roles.ADMIN);
         return byRole.orElseGet(() -> roleService.saveRole(roleAdmin));
     }
 }
