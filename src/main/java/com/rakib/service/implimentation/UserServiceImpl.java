@@ -4,7 +4,10 @@ import com.rakib.domain.UserRole;
 import com.rakib.domain.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
+import javassist.NotFoundException;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +17,6 @@ import com.rakib.domain.UserInfo;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.service.UserService;
 
-import java.rmi.activation.ActivationException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,10 +46,10 @@ public class UserServiceImpl implements UserService {
             if (role.equals(Roles.ADMIN)) {
                 Collection<? extends GrantedAuthority> admin = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
                 admin.forEach(grantedAuthority -> {
-                    if (grantedAuthority.equals(Roles.ADMIN)) {
+                    if (!grantedAuthority.equals(Roles.ADMIN)) {
                         try {
-                            throw new ActivationException("To make an admin, you should be also an admin.");
-                        } catch (ActivationException e) {
+                            throw new Exception("To make an admin, you should be also an admin.");
+                        }catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -57,7 +59,7 @@ public class UserServiceImpl implements UserService {
         });
 
         Optional<UserInfo> byUserName = userInfoRepo.getUserInfoByUserName(user.getUserName());
-        if (byUserName.isPresent()){
+        if (byUserName.isPresent()) {
             throw new DuplicateName("User Email Already Exist.");
         }
 
@@ -78,8 +80,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserInfo> getUsers() {
-        return userInfoRepo.findAll();
+    public Page<UserInfo> getUsers(Pageable pageable) {
+        return userInfoRepo.findAll(pageable);
     }
 
     @Override
@@ -102,6 +104,17 @@ public class UserServiceImpl implements UserService {
             return userInfoRepo.save(userInfo.get());
         }
         throw new Exception("User Not Found.");
+    }
+
+    @Override
+    public String deleteUser(long id) throws NotFoundException {
+        Optional<UserInfo> blog = userInfoRepo.findById(id);
+        if (blog.isPresent()) {
+            userInfoRepo.deleteById(id);
+        } else {
+            throw new NotFoundException("User not found by " + id);
+        }
+        return "Deleted Successfully.";
     }
 
 }

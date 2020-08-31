@@ -1,19 +1,23 @@
 package com.rakib.controller.api;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.google.common.collect.ImmutableMap;
 import com.rakib.service.dto.RequestData;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.service.RoleService;
 import com.rakib.utilities.JWTUtilities;
+import javassist.NotFoundException;
 import lombok.NonNull;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.rakib.domain.UserInfo;
@@ -48,32 +52,40 @@ public class UserController {
     }
 
     @PostMapping("addrole")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> saveRole(@RequestBody UserRole userRole) {
         UserRole saveRole = roleService.saveRole(userRole);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveRole));
     }
+
     @GetMapping("user")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getUser() {
-        List<UserInfo> userInfo = userService.getUsers();
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> getUser(Pageable pageable) {
+        Page<UserInfo> userInfo = userService.getUsers(pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @GetMapping("user/{email}")
-    @PreAuthorize("hasAnyRole('ADMIN','BLOGGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> getUser(@PathVariable String email) {
         UserInfo userInfo = userService.getUserByEmail(email);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
+
     @PutMapping("user/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','BLOGGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,
                                         @RequestBody(required = false) UserDTO userDTO) throws Exception {
         UserInfo userInfo = userService.updateUser(id, userDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
+    @DeleteMapping("user/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> deleteUser(@PathVariable long id) throws NotFoundException {
+        String userInfo = userService.deleteUser(id);
+        return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
+    }
 
     @PostMapping("login")
     @PreAuthorize("permitAll()")
@@ -83,7 +95,8 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtUtilities.jwtTokenProvider();
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         return ResponseEntity.ok().header("Authorization",
-                "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token));
+                "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token, "userType", authorities));
     }
 }
