@@ -65,7 +65,7 @@ public class BlogServiceImpl implements BlogService {
     public Page<BlogDetailsDTO> getBlog(Pageable pageable) {
         AtomicInteger totalLike = new AtomicInteger();
         List<BlogDetailsDTO> blogDetailsDTOS = new ArrayList<>();
-
+        //if ()
         Page<Blog> allBlog = blogRepo.findAll(pageable);
         for (Blog blog : allBlog) {
             BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
@@ -102,15 +102,45 @@ public class BlogServiceImpl implements BlogService {
             blogDetailsDTOS.add(blogDetailsDTO);
         }
 
-        Page<BlogDetailsDTO> pages = new PageImpl<BlogDetailsDTO>(blogDetailsDTOS, pageable, blogDetailsDTOS.size());
-        return pages;
-
+        return new PageImpl<BlogDetailsDTO>(blogDetailsDTOS, pageable, blogDetailsDTOS.size());
     }
 
     @Override
-    public Blog getBlogById(Long id) {
-        Optional<Blog> blogById = blogRepo.findById(id);
-        return blogById.get();
+    public BlogDetailsDTO getBlogById(Long id) {
+        AtomicInteger totalLike = new AtomicInteger();
+        Optional<Blog> blog = blogRepo.findById(id);
+        BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
+        if (blog.isPresent()) {
+            blogDetailsDTO.setBlog(blog.get());
+            Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog.get());
+            commentsByBlog.ifPresent(blogDetailsDTO::setCommentList);
+
+            Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog.get());
+            if (likeOrDislikeByBlog.isPresent()) {
+                likeOrDislikeByBlog.get().forEach(likeDislike -> {
+                    if (likeDislike.isLikeOrDislike()) {
+                        totalLike.getAndIncrement();
+                    }
+                });
+                blogDetailsDTO.setTotalLike(totalLike.get());
+                blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
+            }
+
+            String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+            UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(userName);
+
+            Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog.get());
+            if (byUserInfoAndBlog.isPresent()) {
+                if (byUserInfoAndBlog.get().isLikeOrDislike()) {
+                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.LIKE);
+                } else {
+                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.DISLIKE);
+                }
+            } else {
+                blogDetailsDTO.setCurrentUserLikeOrDislike(Action.NOACTION);
+            }
+        }
+        return blogDetailsDTO;
     }
 
     @Override
@@ -155,7 +185,7 @@ public class BlogServiceImpl implements BlogService {
                 if (!grantedAuthority.equals(Roles.ADMIN)) {
                     String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
                     UserInfo userInfo = userInfoRepo.getUserInfoByUserEmail(principal);
-                    if (! userInfo.equals(blog.get().getUserInfo())){
+                    if (!userInfo.equals(blog.get().getUserInfo())) {
                         try {
                             throw new Exception("You Have not permission perform delete action in the post.");
                         } catch (Exception e) {
@@ -169,5 +199,52 @@ public class BlogServiceImpl implements BlogService {
             throw new NotFoundException("Blog not found by " + id);
         }
         return "Deleted Successfully.";
+    }
+
+    @Override
+    public Page<BlogDetailsDTO> getBlogByUserId(Long id, Pageable pageable) {
+        AtomicInteger totalLike = new AtomicInteger();
+
+        List<BlogDetailsDTO> blogDetailsDTOS = new ArrayList<>();
+
+        Optional<UserInfo> userInfo = userInfoRepo.findById(id);
+        if (userInfo.isPresent()) {
+            Optional<List<Blog>> allBlog = blogRepo.findAllByUserInfo(userInfo);
+            for (Blog blog : allBlog.get()) {
+                BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
+                blogDetailsDTO.setBlog(blog);
+                Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog);
+                commentsByBlog.ifPresent(blogDetailsDTO::setCommentList);
+
+
+                Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog);
+                if (likeOrDislikeByBlog.isPresent()) {
+                    likeOrDislikeByBlog.get().forEach(likeDislike -> {
+                        if (likeDislike.isLikeOrDislike()) {
+                            totalLike.getAndIncrement();
+                        }
+                    });
+                    blogDetailsDTO.setTotalLike(totalLike.get());
+                    blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
+                }
+
+                String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+                UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(userName);
+
+                Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
+                if (byUserInfoAndBlog.isPresent()) {
+                    if (byUserInfoAndBlog.get().isLikeOrDislike()) {
+                        blogDetailsDTO.setCurrentUserLikeOrDislike(Action.LIKE);
+                    } else {
+                        blogDetailsDTO.setCurrentUserLikeOrDislike(Action.DISLIKE);
+                    }
+                } else {
+                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.NOACTION);
+                }
+
+                blogDetailsDTOS.add(blogDetailsDTO);
+            }
+        }
+        return new PageImpl<BlogDetailsDTO>(blogDetailsDTOS, pageable, blogDetailsDTOS.size());
     }
 }

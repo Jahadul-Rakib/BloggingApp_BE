@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin("*")
 @RestController
@@ -50,7 +52,13 @@ public class BlogController {
     @GetMapping("blog/{id}")
     //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> getBlog(@PathVariable Long id) {
-        Blog blog = blogService.getBlogById(id);
+        BlogDetailsDTO blog = blogService.getBlogById(id);
+        return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
+    }
+    @GetMapping("blog/user/{id}")
+    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    public ResponseEntity<?> getBlogByUser(@PathVariable Long id, Pageable pageable) {
+        Page<BlogDetailsDTO> blog = blogService.getBlogByUserId(id, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
