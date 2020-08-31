@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping("adduser")
-    //@PreAuthorize("permitAll()")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) throws DuplicateName {
         UserInfo saveUser = userService.saveUser(user);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveUser));
@@ -88,7 +88,7 @@ public class UserController {
     }
 
     @PostMapping("login")
-    //@PreAuthorize("permitAll()")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getLogin(@RequestBody RequestData requestData) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                 (requestData.getUsername(), requestData.getPassword()));
