@@ -5,6 +5,7 @@ import com.rakib.domain.Comments;
 import com.rakib.domain.LikeDislike;
 import com.rakib.domain.UserInfo;
 import com.rakib.domain.enums.Action;
+import com.rakib.domain.enums.DataType;
 import com.rakib.domain.enums.Roles;
 import com.rakib.domain.repo.BlogRepo;
 import com.rakib.domain.repo.CommentsRepo;
@@ -17,7 +18,9 @@ import javassist.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +55,7 @@ public class BlogServiceImpl implements BlogService {
             throw new NotFoundException("User Not Exist.");
         }
         Blog blog = new Blog();
-        blog.setActiveOrNot(blogDTO.isActiveOrNot());
+        blog.setActive(blogDTO.isActiveOrNot());
         blog.setBlogTitle(blogDTO.getBlogTitle());
         blog.setBlogBody(blogDTO.getBlogBody());
         blog.setBlogPostTime(Instant.now());
@@ -62,12 +65,26 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Page<BlogDetailsDTO> getBlog(Pageable pageable) {
+    public Page<BlogDetailsDTO> getBlog(DataType action, Pageable pageable) {
         AtomicInteger totalLike = new AtomicInteger();
         List<BlogDetailsDTO> blogDetailsDTOS = new ArrayList<>();
-        //if ()
-        Page<Blog> allBlog = blogRepo.findAll(pageable);
-        for (Blog blog : allBlog) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
+        Optional<List<Blog>> allBlog;
+        if (authorized) {
+            if (action.equals(DataType.INACTIVE)) {
+                allBlog = blogRepo.findAllByActive(false);
+            } else if (action.equals(DataType.ACTIVE)) {
+                allBlog = blogRepo.findAllByActive(true);
+            } else {
+                allBlog = Optional.of(blogRepo.findAll());
+            }
+
+        } else {
+            allBlog = blogRepo.findAllByActive(true);
+        }
+        for (Blog blog : allBlog.get()) {
             BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
             blogDetailsDTO.setBlog(blog);
             Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog);
@@ -171,7 +188,7 @@ public class BlogServiceImpl implements BlogService {
                     }
                 });
             }
-            blog.setActiveOrNot(blogDTO.isActiveOrNot());
+            blog.setActive(blogDTO.isActiveOrNot());
         }
         return blogRepo.save(blog);
     }
@@ -185,7 +202,9 @@ public class BlogServiceImpl implements BlogService {
                 if (!grantedAuthority.equals(Roles.ADMIN)) {
                     String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
                     UserInfo userInfo = userInfoRepo.getUserInfoByUserEmail(principal);
-                    if (!userInfo.equals(blog.get().getUserInfo())) {
+                    if (userInfo.equals(blog.get().getUserInfo())) {
+                        blogRepo.findById(id);
+                    } else {
                         try {
                             throw new Exception("You Have not permission perform delete action in the post.");
                         } catch (Exception e) {

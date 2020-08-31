@@ -24,5 +24,5 @@ public class Blog {
     @Lob
     private String blogBody;
     private Instant blogPostTime;
-    private boolean activeOrNot;
+    private boolean active;
 }

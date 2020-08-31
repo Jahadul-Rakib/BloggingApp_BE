@@ -2,6 +2,7 @@ package com.rakib.controller.api;
 
 import com.google.common.collect.ImmutableMap;
 import com.rakib.domain.Blog;
+import com.rakib.domain.enums.DataType;
 import com.rakib.service.BlogService;
 import com.rakib.service.dto.BlogDTO;
 import com.rakib.service.dto.BlogDetailsDTO;
@@ -18,11 +19,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Optional;
+
 
 @CrossOrigin("*")
 @RestController
@@ -44,8 +45,8 @@ public class BlogController {
 
     @GetMapping("blog")
     //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
-    public ResponseEntity<?> getBlog(Pageable pageable) {
-        Page<BlogDetailsDTO> blog = blogService.getBlog(pageable);
+    public ResponseEntity<?> getBlog(@RequestParam(required = false) DataType action, Pageable pageable) {
+        Page<BlogDetailsDTO> blog = blogService.getBlog(action, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 

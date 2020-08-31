@@ -45,35 +45,35 @@ public class UserController {
     }
 
     @PostMapping("adduser")
-    @PreAuthorize("permitAll()")
+    //@PreAuthorize("permitAll()")
     public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) throws DuplicateName {
         UserInfo saveUser = userService.saveUser(user);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveUser));
     }
 
     @PostMapping("addrole")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    //@PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> saveRole(@RequestBody UserRole userRole) {
         UserRole saveRole = roleService.saveRole(userRole);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveRole));
     }
 
     @GetMapping("user")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    //@PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getUser(Pageable pageable) {
         Page<UserInfo> userInfo = userService.getUsers(pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @GetMapping("user/{email}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
+    //@PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> getUser(@PathVariable String email) {
         UserInfo userInfo = userService.getUserByEmail(email);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @PutMapping("user/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
+    //@PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,
                                         @RequestBody(required = false) UserDTO userDTO) throws Exception {
         UserInfo userInfo = userService.updateUser(id, userDTO);
@@ -81,14 +81,14 @@ public class UserController {
     }
 
     @DeleteMapping("user/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    //@PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable long id) throws NotFoundException {
         String userInfo = userService.deleteUser(id);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @PostMapping("login")
-    @PreAuthorize("permitAll()")
+    //@PreAuthorize("permitAll()")
     public ResponseEntity<?> getLogin(@RequestBody RequestData requestData) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                 (requestData.getUsername(), requestData.getPassword()));

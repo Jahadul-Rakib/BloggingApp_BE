@@ -32,19 +32,19 @@ public class BlogInfoController {
     }
 
     @PostMapping("comment")
-    @PreAuthorize("permitAll()")
+    //@PreAuthorize("permitAll()")
     public ResponseEntity<?> saveComment(@RequestBody CommentDTO commentDTO) throws NotFoundException {
         Comments comments = commentService.saveComment(commentDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", comments));
     }
     @PutMapping("comment/{id}")
-    @PreAuthorize("permitAll()")
+    //@PreAuthorize("permitAll()")
     public ResponseEntity<?> updateComment(@PathVariable Long id, @RequestBody CommentDTO commentDTO) throws NotFoundException {
         Comments comments = commentService.updateComment(id, commentDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", comments));
     }
     @PostMapping("likedislike")
-    @PreAuthorize("permitAll()")
+    //@PreAuthorize("permitAll()")
     public ResponseEntity<?> saveLikeDislike(@RequestBody LikeDislikeDTO likeDislikeDTO) throws NotFoundException {
         LikeDislike likeDislike = likeDislikeService.saveLikeDislike(likeDislikeDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", likeDislike));

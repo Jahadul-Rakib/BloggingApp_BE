@@ -12,4 +12,5 @@ import java.util.Optional;
 @Repository
 public interface BlogRepo extends JpaRepository<Blog, Long> {
     Optional<List<Blog>> findAllByUserInfo(Optional<UserInfo> userInfo);
+    Optional<List<Blog>> findAllByActive(boolean activeOrNot);
 }

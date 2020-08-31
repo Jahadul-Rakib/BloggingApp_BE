@@ -1,6 +1,7 @@
 package com.rakib.service;
 
 import com.rakib.domain.Blog;
+import com.rakib.domain.enums.DataType;
 import com.rakib.service.dto.BlogDTO;
 import com.rakib.service.dto.BlogDetailsDTO;
 import javassist.NotFoundException;
@@ -12,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 public interface BlogService {
     Blog saveBlog(BlogDTO blogDTO) throws NotFoundException;
 
-    Page<BlogDetailsDTO> getBlog(Pageable pageable);
+    Page<BlogDetailsDTO> getBlog(DataType action, Pageable pageable);
 
     BlogDetailsDTO getBlogById(Long id);
 
