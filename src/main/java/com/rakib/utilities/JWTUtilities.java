@@ -24,7 +24,7 @@ public class JWTUtilities {
         String Key = AppConstants.KEY;
         String token = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("authorities", authentication.getAuthorities().toString())
+                .claim("authorities", authentication.getAuthorities())
                 .setIssuedAt(new java.util.Date())
                 .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(1)))
                 .signWith(Keys.hmacShaKeyFor(Key.getBytes()))

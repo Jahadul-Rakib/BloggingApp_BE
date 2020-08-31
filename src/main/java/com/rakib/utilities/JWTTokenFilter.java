@@ -54,7 +54,7 @@ public class JWTTokenFilter extends OncePerRequestFilter {
         List authorities = Collections.singletonList(claims.get("authorities"));
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
         authorities.forEach(value -> {
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority((String) value);
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(value.toString());
             simpleGrantedAuthorities.add(authority);
         });
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken
