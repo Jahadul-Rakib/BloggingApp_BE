@@ -1,22 +1,32 @@
 package com.rakib.service.implimentation;
 
 import com.rakib.domain.Blog;
+import com.rakib.domain.Comments;
+import com.rakib.domain.LikeDislike;
 import com.rakib.domain.UserInfo;
+import com.rakib.domain.enums.Action;
 import com.rakib.domain.enums.Roles;
 import com.rakib.domain.repo.BlogRepo;
+import com.rakib.domain.repo.CommentsRepo;
+import com.rakib.domain.repo.LikeDislikeRepo;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.service.BlogService;
 import com.rakib.service.dto.BlogDTO;
+import com.rakib.service.dto.BlogDetailsDTO;
 import javassist.NotFoundException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.nonNull;
 
@@ -25,10 +35,14 @@ public class BlogServiceImpl implements BlogService {
 
     private final BlogRepo blogRepo;
     private final UserInfoRepo userInfoRepo;
+    private final CommentsRepo commentsRepo;
+    private final LikeDislikeRepo likeDislikeRepo;
 
-    public BlogServiceImpl(BlogRepo blogRepo, UserInfoRepo userInfoRepo) {
+    public BlogServiceImpl(BlogRepo blogRepo, UserInfoRepo userInfoRepo, CommentsRepo commentsRepo, LikeDislikeRepo likeDislikeRepo) {
         this.blogRepo = blogRepo;
         this.userInfoRepo = userInfoRepo;
+        this.commentsRepo = commentsRepo;
+        this.likeDislikeRepo = likeDislikeRepo;
     }
 
     @Override
@@ -48,8 +62,49 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Page<Blog> getBlog(Pageable pageable) {
-        return blogRepo.findAll(pageable);
+    public Page<BlogDetailsDTO> getBlog(Pageable pageable) {
+        AtomicInteger totalLike = new AtomicInteger();
+        List<BlogDetailsDTO> blogDetailsDTOS = new ArrayList<>();
+
+        Page<Blog> allBlog = blogRepo.findAll(pageable);
+        for (Blog blog : allBlog) {
+            BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
+            blogDetailsDTO.setBlog(blog);
+            Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog);
+            commentsByBlog.ifPresent(blogDetailsDTO::setCommentList);
+
+
+            Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog);
+            if (likeOrDislikeByBlog.isPresent()) {
+                likeOrDislikeByBlog.get().forEach(likeDislike -> {
+                    if (likeDislike.isLikeOrDislike()) {
+                        totalLike.getAndIncrement();
+                    }
+                });
+                blogDetailsDTO.setTotalLike(totalLike.get());
+                blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
+            }
+
+            String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+            UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(userName);
+
+            Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
+            if (byUserInfoAndBlog.isPresent()) {
+                if (byUserInfoAndBlog.get().isLikeOrDislike()) {
+                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.LIKE);
+                } else {
+                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.DISLIKE);
+                }
+            } else {
+                blogDetailsDTO.setCurrentUserLikeOrDislike(Action.NOACTION);
+            }
+
+            blogDetailsDTOS.add(blogDetailsDTO);
+        }
+
+        Page<BlogDetailsDTO> pages = new PageImpl<BlogDetailsDTO>(blogDetailsDTOS, pageable, blogDetailsDTOS.size());
+        return pages;
+
     }
 
     @Override
@@ -100,7 +155,7 @@ public class BlogServiceImpl implements BlogService {
                 if (!grantedAuthority.equals(Roles.ADMIN)) {
                     String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
                     UserInfo userInfo = userInfoRepo.getUserInfoByUserEmail(principal);
-                    if (userInfo.equals(blog.get().getUserInfo())){
+                    if (! userInfo.equals(blog.get().getUserInfo())){
                         try {
                             throw new Exception("You Have not permission perform delete action in the post.");
                         } catch (Exception e) {

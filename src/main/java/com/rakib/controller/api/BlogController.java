@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.rakib.domain.Blog;
 import com.rakib.service.BlogService;
 import com.rakib.service.dto.BlogDTO;
+import com.rakib.service.dto.BlogDetailsDTO;
 import javassist.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,35 +34,35 @@ public class BlogController {
     }
 
     @PostMapping("blog")
-    @PreAuthorize("hasAuthority('BLOGGER')")
+    //@PreAuthorize("hasAuthority('BLOGGER')")
     public ResponseEntity<?> saveBlog(@Valid @RequestBody BlogDTO blogDTO) throws NotFoundException {
         Blog blog = blogService.saveBlog(blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @GetMapping("blog")
-    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> getBlog(Pageable pageable) {
-        Page<Blog> blog = blogService.getBlog(pageable);
+        Page<BlogDetailsDTO> blog = blogService.getBlog(pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @GetMapping("blog/{id}")
-    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> getBlog(@PathVariable Long id) {
         Blog blog = blogService.getBlogById(id);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @PutMapping("blog/{id}")
-    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody BlogDTO blogDTO) {
         Blog blog = blogService.updateBlog(id, blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @DeleteMapping("blog/{id}")
-    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> deleteBlog(@PathVariable Long id) throws NotFoundException {
         String blog = blogService.deleteBlog(id);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));

@@ -8,7 +8,9 @@ import javassist.NotFoundException;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,16 +46,16 @@ public class UserServiceImpl implements UserService {
         user.getRoleId().forEach(value -> {
             UserRole role = userRoleRepo.getOne(value);
             if (role.equals(Roles.ADMIN)) {
-                Collection<? extends GrantedAuthority> admin = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-                admin.forEach(grantedAuthority -> {
-                    if (!grantedAuthority.equals(Roles.ADMIN)) {
-                        try {
-                            throw new Exception("To make an admin, you should be also an admin.");
-                        }catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+                boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
+                if (!authorized) {
+                    try {
+                        throw new Exception("To make an admin, you should be also an admin.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
             }
             roles.add(role);
         });
