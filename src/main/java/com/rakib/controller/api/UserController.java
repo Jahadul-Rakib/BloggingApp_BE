@@ -52,28 +52,28 @@ public class UserController {
     }
 
     @PostMapping("addrole")
-    //@PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> saveRole(@RequestBody Role userRole) {
         Role saveRole = roleService.saveRole(userRole);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveRole));
     }
 
     @GetMapping("user")
-    //@PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getUser(Pageable pageable) {
         Page<UserInfo> userInfo = userService.getUsers(pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @GetMapping("user/{email}")
-    //@PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> getUser(@PathVariable String email) {
         UserInfo userInfo = userService.getUserByEmail(email);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @PutMapping("user/{id}")
-    //@PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,
                                         @RequestBody(required = false) UserDTO userDTO) throws Exception {
         UserInfo userInfo = userService.updateUser(id, userDTO);
@@ -81,7 +81,7 @@ public class UserController {
     }
 
     @DeleteMapping("user/{id}")
-    //@PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable long id) throws NotFoundException {
         String userInfo = userService.deleteUser(id);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));

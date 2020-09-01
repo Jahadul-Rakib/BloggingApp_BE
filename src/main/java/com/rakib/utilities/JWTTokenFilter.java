@@ -51,10 +51,17 @@ public class JWTTokenFilter extends OncePerRequestFilter {
 
     private void setUpSpringAuthentication(Claims claims) {
         @SuppressWarnings("unchecked")
-        List authorities = Collections.singletonList(claims.get("authorities"));
+        List<Object> authorities = Collections.singletonList(claims.get("authorities"));//[{id=1, name=ADMIN, authority=ADMIN}]
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
         authorities.forEach(value -> {
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(value.toString());
+            String replace = value.toString().replace("[{", "");
+            String replace1 = replace.replace("}]", "");
+            String[] split = replace1.split(" ");
+            String subPart = split[2];
+            String[] split1 = subPart.split("=");
+            String actualVaue = split1[1];
+
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(actualVaue);
             simpleGrantedAuthorities.add(authority);
         });
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken

@@ -37,41 +37,41 @@ public class BlogController {
     }
 
     @PostMapping("blog")
-    //@PreAuthorize("hasAuthority('BLOGGER')")
+    @PreAuthorize("hasAuthority('BLOGGER')")
     public ResponseEntity<?> saveBlog(@Valid @RequestBody BlogDTO blogDTO) throws NotFoundException {
         Blog blog = blogService.saveBlog(blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @GetMapping("blog")
-    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> getBlog(@RequestParam(required = false) DataType action, Pageable pageable) {
         Page<BlogDetailsDTO> blog = blogService.getBlog(action, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @GetMapping("blog/{id}")
-    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> getBlog(@PathVariable Long id) {
         BlogDetailsDTO blog = blogService.getBlogById(id);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
     @GetMapping("blog/user/{id}")
-    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> getBlogByUser(@PathVariable Long id, Pageable pageable) {
         Page<BlogDetailsDTO> blog = blogService.getBlogByUserId(id, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @PutMapping("blog/{id}")
-    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody BlogDTO blogDTO) throws Exception {
         Blog blog = blogService.updateBlog(id, blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @DeleteMapping("blog/{id}")
-    //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> deleteBlog(@PathVariable Long id) throws NotFoundException {
         String blog = blogService.deleteBlog(id);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
