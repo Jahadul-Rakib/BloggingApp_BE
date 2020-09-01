@@ -53,7 +53,7 @@ public class UserController {
 
     @PostMapping("role")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> saveRole(@RequestBody Role userRole) {
+    public ResponseEntity<?> saveRole(@RequestBody Role userRole) throws Exception {
         Role saveRole = roleService.saveRole(userRole);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveRole));
     }
