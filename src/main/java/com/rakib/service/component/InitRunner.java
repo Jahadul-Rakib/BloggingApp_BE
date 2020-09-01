@@ -37,14 +37,24 @@ public class InitRunner implements CommandLineRunner {
     }
 
     private void addUser() {
-        Role role = addRoles();
+        Role roleAdmin = addRoles(Roles.ADMIN);
+        Role roleBlogger = addRoles(Roles.BLOGGER);
+
+        UserDTO adminDTO = new UserDTO();
+        adminDTO.setUserName("Admin");
+        adminDTO.setUserEmail("rakib38@diit.info");
+        adminDTO.setUserPassword("123456");
+        adminDTO.setUserPhone("01680023583");
+        adminDTO.setRoleId(Collections.singletonList(roleAdmin.getId()));
+        adminDTO.setActive(true);
+        saveUser(adminDTO);
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setUserName("Admin");
-        userDTO.setUserEmail("rakib38@diit.info");
+        userDTO.setUserName("Blogger");
+        userDTO.setUserEmail("rakibdiu2015@gmail.com");
         userDTO.setUserPassword("123456");
         userDTO.setUserPhone("01680023583");
-        userDTO.setRoleId(Collections.singletonList(role.getId()));
+        userDTO.setRoleId(Collections.singletonList(roleBlogger.getId()));
         userDTO.setActive(true);
         saveUser(userDTO);
     }
@@ -72,10 +82,10 @@ public class InitRunner implements CommandLineRunner {
         }
     }
 
-    private Role addRoles() {
-        Role roleAdmin = new Role();
-        roleAdmin.setName(Roles.ADMIN);
-        Optional<Role> byRole = userRoleRepo.findByName(Roles.ADMIN);
-        return byRole.orElseGet(() -> roleService.saveRole(roleAdmin));
+    private Role addRoles(Roles roles) {
+        Role role = new Role();
+        role.setName(roles);
+        Optional<Role> byRole = userRoleRepo.findByName(roles);
+        return byRole.orElseGet(() -> roleService.saveRole(role));
     }
 }

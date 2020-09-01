@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 public interface BlogService {
     Blog saveBlog(BlogDTO blogDTO) throws NotFoundException;
 
-    Page<BlogDetailsDTO> getBlog(DataType action, Pageable pageable);
+    Page<BlogDetailsDTO> getBlog(DataType action, Pageable pageable) throws Exception;
 
     BlogDetailsDTO getBlogById(Long id);
 

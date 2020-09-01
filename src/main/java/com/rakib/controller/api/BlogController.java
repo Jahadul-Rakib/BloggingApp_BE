@@ -37,7 +37,7 @@ public class BlogController {
     }
 
     @PostMapping("blog")
-    @PreAuthorize("hasAuthority('BLOGGER')")
+    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
     public ResponseEntity<?> saveBlog(@Valid @RequestBody BlogDTO blogDTO) throws NotFoundException {
         Blog blog = blogService.saveBlog(blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
@@ -45,19 +45,19 @@ public class BlogController {
 
     @GetMapping("blog")
     @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
-    public ResponseEntity<?> getBlog(@RequestParam(required = false) DataType action, Pageable pageable) {
+    public ResponseEntity<?> getBlog(@RequestParam(required = false) DataType action, Pageable pageable) throws Exception {
         Page<BlogDetailsDTO> blog = blogService.getBlog(action, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
     @GetMapping("blog/{id}")
-    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getBlog(@PathVariable Long id) {
         BlogDetailsDTO blog = blogService.getBlogById(id);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
     @GetMapping("blog/user/{id}")
-    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getBlogByUser(@PathVariable Long id, Pageable pageable) {
         Page<BlogDetailsDTO> blog = blogService.getBlogByUserId(id, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));

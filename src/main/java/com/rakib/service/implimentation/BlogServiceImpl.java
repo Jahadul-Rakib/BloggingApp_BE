@@ -65,7 +65,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Page<BlogDetailsDTO> getBlog(DataType action, Pageable pageable) {
+    public Page<BlogDetailsDTO> getBlog(DataType action, Pageable pageable) throws Exception {
         AtomicInteger totalLike = new AtomicInteger();
         List<BlogDetailsDTO> blogDetailsDTOS = new ArrayList<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -73,16 +73,20 @@ public class BlogServiceImpl implements BlogService {
         boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
         Optional<List<Blog>> allBlog;
         if (authorized) {
-            if (action.equals(DataType.INACTIVE)) {
-                allBlog = blogRepo.findAllByActive(false);
+            if (action == null) {
+                allBlog = Optional.of(blogRepo.findAll());
             } else if (action.equals(DataType.ACTIVE)) {
                 allBlog = blogRepo.findAllByActive(true);
-            } else {
-                allBlog = Optional.of(blogRepo.findAll());
+            } else if (action.equals(DataType.INACTIVE)){
+                allBlog = blogRepo.findAllByActive(false);
+            }else {
+                throw new Exception("Data Type Exception.");
             }
-
         } else {
             allBlog = blogRepo.findAllByActive(true);
+        }
+        if (! allBlog.isPresent()){
+            throw new NotFoundException("No Data Found.");
         }
         for (Blog blog : allBlog.get()) {
             BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
