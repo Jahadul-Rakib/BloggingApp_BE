@@ -65,7 +65,7 @@ public class BlogController {
 
     @PutMapping("blog/{id}")
     //@PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
-    public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody BlogDTO blogDTO) {
+    public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody BlogDTO blogDTO) throws Exception {
         Blog blog = blogService.updateBlog(id, blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }

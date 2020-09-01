@@ -17,7 +17,7 @@ public interface BlogService {
 
     BlogDetailsDTO getBlogById(Long id);
 
-    Blog updateBlog(Long id, BlogDTO blogDTO);
+    Blog updateBlog(Long id, BlogDTO blogDTO) throws Exception;
 
     String deleteBlog(Long id) throws NotFoundException;
 

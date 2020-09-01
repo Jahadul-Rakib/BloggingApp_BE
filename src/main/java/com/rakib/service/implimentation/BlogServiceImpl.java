@@ -161,7 +161,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Blog updateBlog(Long id, BlogDTO blogDTO) {
+    public Blog updateBlog(Long id, BlogDTO blogDTO) throws Exception {
         Blog blog = new Blog();
         blog.setId(id);
         Optional<UserInfo> userInfo = userInfoRepo.findById(blogDTO.getUserId());
@@ -175,20 +175,17 @@ public class BlogServiceImpl implements BlogService {
         if (nonNull(blogDTO.getBlogPostTime())) {
             blog.setBlogPostTime(blogDTO.getBlogPostTime());
         }
+
         if (blogDTO.isActiveOrNot()) {
-            if (blogDTO.isActiveOrNot()) {
-                Collection<? extends GrantedAuthority> admin = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-                admin.forEach(grantedAuthority -> {
-                    if (!grantedAuthority.equals(Roles.ADMIN)) {
-                        try {
-                            throw new Exception("Admin required to update activation Status.");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
+            if (authorized) {
+                blog.setActive(blogDTO.isActiveOrNot());
+            } else {
+                throw new Exception("Admin required to update activation Status.");
             }
-            blog.setActive(blogDTO.isActiveOrNot());
+
         }
         return blogRepo.save(blog);
     }
@@ -197,22 +194,23 @@ public class BlogServiceImpl implements BlogService {
     public String deleteBlog(Long id) throws NotFoundException {
         Optional<Blog> blog = blogRepo.findById(id);
         if (blog.isPresent()) {
-            Collection<? extends GrantedAuthority> admin = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-            admin.forEach(grantedAuthority -> {
-                if (!grantedAuthority.equals(Roles.ADMIN)) {
-                    String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-                    UserInfo userInfo = userInfoRepo.getUserInfoByUserEmail(principal);
-                    if (userInfo.equals(blog.get().getUserInfo())) {
-                        blogRepo.findById(id);
-                    } else {
-                        try {
-                            throw new Exception("You Have not permission perform delete action in the post.");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
+            if (!authorized) {
+                String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+                UserInfo userInfo = userInfoRepo.getUserInfoByUserEmail(principal);
+                if (userInfo.equals(blog.get().getUserInfo())) {
+                    blogRepo.findById(id);
+                } else {
+                    try {
+                        throw new Exception("You Have not permission perform delete action in the post.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
-            });
+            }
+
             blogRepo.deleteById(id);
         } else {
             throw new NotFoundException("Blog not found by " + id);
