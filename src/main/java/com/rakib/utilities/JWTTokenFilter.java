@@ -54,15 +54,13 @@ public class JWTTokenFilter extends OncePerRequestFilter {
         List<Object> authorities = Collections.singletonList(claims.get("authorities"));//[{id=1, name=ADMIN, authority=ADMIN}]
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
         authorities.forEach(value -> {
-            String replace = value.toString().replace("[{", "");
-            String replace1 = replace.replace("}]", "");
-            String[] split = replace1.split(" ");
-            String subPart = split[2];
-            String[] split1 = subPart.split("=");
-            String actualVaue = split1[1];
-
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(actualVaue);
-            simpleGrantedAuthorities.add(authority);
+            String replace = value.toString().replace("[", "");
+            String replace1 = replace.replace("]", "");
+            String[] split = replace1.split(",");
+            for (String actualVaue: split){
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(actualVaue);
+                simpleGrantedAuthorities.add(authority);
+            }
         });
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken
                 (claims.getSubject(), null, simpleGrantedAuthorities);
