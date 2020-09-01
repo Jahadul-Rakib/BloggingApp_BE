@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head th:replace="header :: common-header"></head>
+
+<body>
+<div class="container">
+    <div th:replace="header :: header-script"></div>
+    <div class="row col-12" style="margin: auto">
+        <div class="card" style="width: 100%">
+            <div class="card-body">
+                <h5 class="card-title">Special title treatment</h5>
+                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+            </div>
+        </div>
+    </div>
+    <div th:replace="header :: body-bottom-scripts"></div>
+</div>
+</body>
+</html>

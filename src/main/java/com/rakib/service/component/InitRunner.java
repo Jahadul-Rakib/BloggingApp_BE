@@ -20,13 +20,11 @@ import java.util.Optional;
 @Component
 public class InitRunner implements CommandLineRunner {
     private final UserInfoRepo userInfoRepo;
-    private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final UserRoleRepo userRoleRepo;
 
-    public InitRunner(UserInfoRepo userInfoRepo, RoleService roleService, PasswordEncoder passwordEncoder, UserRoleRepo userRoleRepo) {
+    public InitRunner(UserInfoRepo userInfoRepo, PasswordEncoder passwordEncoder, UserRoleRepo userRoleRepo) {
         this.userInfoRepo = userInfoRepo;
-        this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.userRoleRepo = userRoleRepo;
     }
@@ -86,6 +84,6 @@ public class InitRunner implements CommandLineRunner {
         Role role = new Role();
         role.setName(roles);
         Optional<Role> byRole = userRoleRepo.findByName(roles);
-        return byRole.orElseGet(() -> roleService.saveRole(role));
+        return byRole.orElseGet(() -> userRoleRepo.save(role));
     }
 }

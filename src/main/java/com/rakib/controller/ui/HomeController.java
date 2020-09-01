@@ -10,4 +10,12 @@ public class HomeController {
     public String index(Model model){
         return "index";
     }
+    @GetMapping("blog")
+    public String blog(Model model){
+        return "blog";
+    }
+    @GetMapping("login")
+    public String login(Model model){
+        return "login";
+    }
 }
