@@ -8,7 +8,9 @@ import com.rakib.domain.repo.LikeDislikeRepo;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.service.LikeDislikeService;
 import com.rakib.service.dto.LikeDislikeDTO;
+import com.rakib.service.mapper.LikeMapper;
 import javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,6 +18,9 @@ import java.util.Optional;
 
 @Service
 public class LikeDislikeServiceImpl implements LikeDislikeService {
+    @Autowired
+    LikeMapper likeMapper;
+
     private final UserInfoRepo userInfoRepo;
     private final BlogRepo blogRepo;
     private final LikeDislikeRepo likeDislikeRepo;
@@ -28,10 +33,10 @@ public class LikeDislikeServiceImpl implements LikeDislikeService {
 
 
     @Override
-    public LikeDislike saveLikeDislike(LikeDislikeDTO likeDislikeDTO) throws NotFoundException {
+    public LikeDislikeDTO saveLikeDislike(LikeDislikeDTO likeDislikeDTO) throws NotFoundException {
         LikeDislike likeDislike = new LikeDislike();
 
-        Optional<UserInfo> user = userInfoRepo.findById(likeDislikeDTO.getUserId());
+        Optional<UserInfo> user = userInfoRepo.getUserInfoByUserName(likeDislikeDTO.getUserName());
         if (!user.isPresent()) {
             throw new NotFoundException("User Not Found.");
         }
@@ -47,6 +52,6 @@ public class LikeDislikeServiceImpl implements LikeDislikeService {
         likeDislike.setActionTime(Instant.now());
         likeDislike.setUserInfo(user.get());
         likeDislike.setBlog(blog.get());
-        return likeDislikeRepo.save(likeDislike);
+        return likeMapper.toDTO(likeDislikeRepo.save(likeDislike));
     }
 }

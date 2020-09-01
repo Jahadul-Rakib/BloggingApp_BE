@@ -6,15 +6,19 @@ import com.rakib.domain.LikeDislike;
 import com.rakib.domain.UserInfo;
 import com.rakib.domain.enums.Action;
 import com.rakib.domain.enums.DataType;
-import com.rakib.domain.enums.Roles;
 import com.rakib.domain.repo.BlogRepo;
 import com.rakib.domain.repo.CommentsRepo;
 import com.rakib.domain.repo.LikeDislikeRepo;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.service.BlogService;
 import com.rakib.service.dto.BlogDTO;
-import com.rakib.service.dto.BlogDetailsDTO;
+import com.rakib.service.dto.BlogPayloadDTO;
+import com.rakib.service.dto.CommentDTO;
+import com.rakib.service.dto.response.BlogDetailsDTO;
+import com.rakib.service.mapper.BlogMapper;
+import com.rakib.service.mapper.CommentMapper;
 import javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +39,10 @@ import static java.util.Objects.nonNull;
 
 @Service
 public class BlogServiceImpl implements BlogService {
+    @Autowired
+    private BlogMapper blogMapper;
+    @Autowired
+    private CommentMapper commentMapper;
 
     private final BlogRepo blogRepo;
     private final UserInfoRepo userInfoRepo;
@@ -49,7 +57,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Blog saveBlog(BlogDTO blogDTO) throws NotFoundException {
+    public BlogDTO saveBlog(BlogPayloadDTO blogDTO) throws NotFoundException {
         Optional<UserInfo> user = userInfoRepo.findById(blogDTO.getUserId());
         if (!user.isPresent()) {
             throw new NotFoundException("User Not Exist.");
@@ -61,7 +69,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setBlogPostTime(Instant.now());
         blog.setUserInfo(user.get());
 
-        return blogRepo.save(blog);
+        return blogMapper.toDTO(blogRepo.save(blog));
     }
 
     @Override
@@ -77,24 +85,26 @@ public class BlogServiceImpl implements BlogService {
                 allBlog = Optional.of(blogRepo.findAll());
             } else if (action.equals(DataType.ACTIVE)) {
                 allBlog = blogRepo.findAllByActive(true);
-            } else if (action.equals(DataType.INACTIVE)){
+            } else if (action.equals(DataType.INACTIVE)) {
                 allBlog = blogRepo.findAllByActive(false);
-            }else {
+            } else {
                 throw new Exception("Data Type Exception.");
             }
         } else {
             allBlog = blogRepo.findAllByActive(true);
         }
-        if (! allBlog.isPresent()){
+        if (!allBlog.isPresent()) {
             throw new NotFoundException("No Data Found.");
         }
         for (Blog blog : allBlog.get()) {
             BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
-            blogDetailsDTO.setBlog(blog);
+            blogDetailsDTO.setBlog(blogMapper.toDTO(blog));
             Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog);
-            commentsByBlog.ifPresent(blogDetailsDTO::setCommentList);
-
-
+            List<CommentDTO> commentDTOS = new ArrayList<>();
+            commentsByBlog.ifPresent(commentsList -> commentsList.forEach(comments -> {
+                commentDTOS.add(commentMapper.toDTO(comments));
+            }));
+            blogDetailsDTO.setCommentList(commentDTOS);
             Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog);
             if (likeOrDislikeByBlog.isPresent()) {
                 likeOrDislikeByBlog.get().forEach(likeDislike -> {
@@ -132,9 +142,13 @@ public class BlogServiceImpl implements BlogService {
         Optional<Blog> blog = blogRepo.findById(id);
         BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
         if (blog.isPresent()) {
-            blogDetailsDTO.setBlog(blog.get());
+            blogDetailsDTO.setBlog(blogMapper.toDTO(blog.get()));
             Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog.get());
-            commentsByBlog.ifPresent(blogDetailsDTO::setCommentList);
+            List<CommentDTO> commentDTOS = new ArrayList<>();
+            commentsByBlog.ifPresent(commentsList -> commentsList.forEach(comments -> {
+                commentDTOS.add(commentMapper.toDTO(comments));
+            }));
+            blogDetailsDTO.setCommentList(commentDTOS);
 
             Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog.get());
             if (likeOrDislikeByBlog.isPresent()) {
@@ -165,33 +179,33 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Blog updateBlog(Long id, BlogDTO blogDTO) throws Exception {
+    public BlogDTO updateBlog(Long id, BlogPayloadDTO blogPayloadDTO) throws Exception {
         Blog blog = new Blog();
         blog.setId(id);
-        Optional<UserInfo> userInfo = userInfoRepo.findById(blogDTO.getUserId());
+        Optional<UserInfo> userInfo = userInfoRepo.findById(blogPayloadDTO.getUserId());
         blog.setUserInfo(userInfo.get());
-        if (nonNull(blogDTO.getBlogTitle())) {
-            blog.setBlogTitle(blogDTO.getBlogTitle());
+        if (nonNull(blogPayloadDTO.getBlogTitle())) {
+            blog.setBlogTitle(blogPayloadDTO.getBlogTitle());
         }
-        if (nonNull(blogDTO.getBlogBody())) {
-            blog.setBlogBody(blogDTO.getBlogBody());
+        if (nonNull(blogPayloadDTO.getBlogBody())) {
+            blog.setBlogBody(blogPayloadDTO.getBlogBody());
         }
-        if (nonNull(blogDTO.getBlogPostTime())) {
-            blog.setBlogPostTime(blogDTO.getBlogPostTime());
+        if (nonNull(blogPayloadDTO.getBlogPostTime())) {
+            blog.setBlogPostTime(blogPayloadDTO.getBlogPostTime());
         }
 
-        if (blogDTO.isActiveOrNot()) {
+        if (blogPayloadDTO.isActiveOrNot()) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
             if (authorized) {
-                blog.setActive(blogDTO.isActiveOrNot());
+                blog.setActive(blogPayloadDTO.isActiveOrNot());
             } else {
                 throw new Exception("Admin required to update activation Status.");
             }
 
         }
-        return blogRepo.save(blog);
+        return blogMapper.toDTO(blogRepo.save(blog));
     }
 
     @Override
@@ -233,10 +247,13 @@ public class BlogServiceImpl implements BlogService {
             Optional<List<Blog>> allBlog = blogRepo.findAllByUserInfo(userInfo);
             for (Blog blog : allBlog.get()) {
                 BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
-                blogDetailsDTO.setBlog(blog);
+                blogDetailsDTO.setBlog(blogMapper.toDTO(blog));
                 Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog);
-                commentsByBlog.ifPresent(blogDetailsDTO::setCommentList);
-
+                List<CommentDTO> commentDTOS = new ArrayList<>();
+                commentsByBlog.ifPresent(commentsList -> commentsList.forEach(comments -> {
+                    commentDTOS.add(commentMapper.toDTO(comments));
+                }));
+                blogDetailsDTO.setCommentList(commentDTOS);
 
                 Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog);
                 if (likeOrDislikeByBlog.isPresent()) {

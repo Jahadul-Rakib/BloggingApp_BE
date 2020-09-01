@@ -5,7 +5,8 @@ import com.rakib.domain.Blog;
 import com.rakib.domain.enums.DataType;
 import com.rakib.service.BlogService;
 import com.rakib.service.dto.BlogDTO;
-import com.rakib.service.dto.BlogDetailsDTO;
+import com.rakib.service.dto.BlogPayloadDTO;
+import com.rakib.service.dto.response.BlogDetailsDTO;
 import javassist.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,8 +39,8 @@ public class BlogController {
 
     @PostMapping("blog")
     @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
-    public ResponseEntity<?> saveBlog(@Valid @RequestBody BlogDTO blogDTO) throws NotFoundException {
-        Blog blog = blogService.saveBlog(blogDTO);
+    public ResponseEntity<?> saveBlog(@Valid @RequestBody BlogPayloadDTO blogDTO) throws NotFoundException {
+        BlogDTO blog = blogService.saveBlog(blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 
@@ -65,8 +66,8 @@ public class BlogController {
 
     @PutMapping("blog/{id}")
     @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
-    public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody BlogDTO blogDTO) throws Exception {
-        Blog blog = blogService.updateBlog(id, blogDTO);
+    public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody BlogPayloadDTO blogDTO) throws Exception {
+        BlogDTO blog = blogService.updateBlog(id, blogDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
     }
 

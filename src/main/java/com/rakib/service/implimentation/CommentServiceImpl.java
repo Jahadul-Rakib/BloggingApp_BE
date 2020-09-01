@@ -8,14 +8,21 @@ import com.rakib.domain.repo.CommentsRepo;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.service.CommentService;
 import com.rakib.service.dto.CommentDTO;
+import com.rakib.service.mapper.CommentMapper;
 import javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Optional;
 
+import static java.util.Objects.nonNull;
+
 @Service
 public class CommentServiceImpl implements CommentService {
+    @Autowired
+    CommentMapper commentMapper;
+
     private final CommentsRepo commentsRepo;
     private final UserInfoRepo userInfoRepo;
     private final BlogRepo blogRepo;
@@ -27,8 +34,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comments saveComment(CommentDTO commentDTO) throws NotFoundException {
-        Optional<UserInfo> user = userInfoRepo.findById(commentDTO.getUserId());
+    public CommentDTO saveComment(CommentDTO commentDTO) throws NotFoundException {
+        Optional<UserInfo> user = userInfoRepo.getUserInfoByUserName(commentDTO.getUserName());
         if (!user.isPresent()) {
             throw new NotFoundException("User Not Found.");
         }
@@ -42,18 +49,18 @@ public class CommentServiceImpl implements CommentService {
         comments.setUserInfo(user.get());
         comments.setBlog(blog.get());
 
-        if (new Long(commentDTO.getId()) != null){
-            comments.setId(commentDTO.getId());
-        }
-        return commentsRepo.save(comments);
+        comments.setId(commentDTO.getId());
+
+        return commentMapper.toDTO(commentsRepo.save(comments));
     }
 
     @Override
-    public Comments updateComment(Long id, CommentDTO commentDTO) throws NotFoundException{
+    public CommentDTO updateComment(Long id, CommentDTO commentDTO) throws NotFoundException {
         Optional<Comments> comment = commentsRepo.findById(id);
-        if (comment.isPresent()){
+        if (comment.isPresent()) {
+            commentDTO.setId(id);
             return saveComment(commentDTO);
-        };
+        }
         throw new NotFoundException("Comment Not Found");
     }
 }

@@ -7,7 +7,7 @@ import java.time.Instant;
 @Data
 public class CommentDTO {
     private long id;
-    private Long userId;
+    private String userName;
     private Long blogId;
     private String comment;
     private Instant commentTime;

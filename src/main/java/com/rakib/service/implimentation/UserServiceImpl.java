@@ -4,9 +4,14 @@ import com.rakib.domain.Role;
 import com.rakib.domain.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
+import com.rakib.service.dto.response.BlogDetailsDTO;
+import com.rakib.service.dto.response.UserResponseDTO;
+import com.rakib.service.mapper.UserMapper;
 import javassist.NotFoundException;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,7 +33,8 @@ import static java.util.Objects.nonNull;
 
 @Service
 public class UserServiceImpl implements UserService {
-
+    @Autowired
+    UserMapper userMapper;
 
     private final UserInfoRepo userInfoRepo;
     private final UserRoleRepo userRoleRepo;
@@ -41,7 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo saveUser(UserDTO user) throws DuplicateName {
+    public UserResponseDTO saveUser(UserDTO user) throws DuplicateName {
         List<Role> roles = new ArrayList<>();
         user.getRoleId().forEach(value -> {
             Role role = userRoleRepo.getOne(value);
@@ -73,21 +79,26 @@ public class UserServiceImpl implements UserService {
         userInfo.setActive(false);
         userInfo.setRole(roles);
 
-        return userInfoRepo.save(userInfo);
+        return userMapper.toDTO(userInfoRepo.save(userInfo));
     }
 
     @Override
-    public UserInfo getUserByEmail(String email) {
-        return userInfoRepo.getUserInfoByUserEmail(email);
+    public UserResponseDTO getUserByEmail(String email) {
+        return userMapper.toDTO(userInfoRepo.getUserInfoByUserEmail(email));
     }
 
     @Override
-    public Page<UserInfo> getUsers(Pageable pageable) {
-        return userInfoRepo.findAll(pageable);
+    public Page<UserResponseDTO> getUsers(Pageable pageable) {
+        Page<UserInfo> all = userInfoRepo.findAll(pageable);
+        List<UserResponseDTO> responseDTOS = new ArrayList<>();
+        all.forEach(info -> {
+            responseDTOS.add(userMapper.toDTO(info));
+        });
+        return new PageImpl<UserResponseDTO>(responseDTOS, pageable, responseDTOS.size());
     }
 
     @Override
-    public UserInfo updateUser(long id, UserDTO userDTO) throws Exception {
+    public UserResponseDTO updateUser(long id, UserDTO userDTO) throws Exception {
         Optional<UserInfo> userInfo = userInfoRepo.findById(id);
         if (userInfo.isPresent()) {
             if (nonNull(userDTO.getUserName())) {
@@ -102,8 +113,8 @@ public class UserServiceImpl implements UserService {
             if (userDTO.isActive()) {
                 userInfo.get().setActive(userDTO.isActive());
             }
-
-            return userInfoRepo.save(userInfo.get());
+            UserInfo save = userInfoRepo.save(userInfo.get());
+            return userMapper.toDTO(save);
         }
         throw new Exception("User Not Found.");
     }

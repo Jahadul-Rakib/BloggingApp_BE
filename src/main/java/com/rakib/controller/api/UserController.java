@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.rakib.service.dto.RequestData;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.service.RoleService;
+import com.rakib.service.dto.response.UserResponseDTO;
 import com.rakib.utilities.JWTUtilities;
 import javassist.NotFoundException;
 import lombok.NonNull;
@@ -20,7 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import com.rakib.domain.UserInfo;
 import com.rakib.domain.Role;
 import com.rakib.service.UserService;
 
@@ -44,14 +44,14 @@ public class UserController {
 
     }
 
-    @PostMapping("adduser")
+    @PostMapping("user")
     @PreAuthorize("permitAll()")
     public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) throws DuplicateName {
-        UserInfo saveUser = userService.saveUser(user);
+        UserResponseDTO saveUser = userService.saveUser(user);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveUser));
     }
 
-    @PostMapping("addrole")
+    @PostMapping("role")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> saveRole(@RequestBody Role userRole) {
         Role saveRole = roleService.saveRole(userRole);
@@ -61,14 +61,14 @@ public class UserController {
     @GetMapping("user")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getUser(Pageable pageable) {
-        Page<UserInfo> userInfo = userService.getUsers(pageable);
+        Page<UserResponseDTO> userInfo = userService.getUsers(pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
     @GetMapping("user/{email}")
     @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> getUser(@PathVariable String email) {
-        UserInfo userInfo = userService.getUserByEmail(email);
+        UserResponseDTO userInfo = userService.getUserByEmail(email);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
@@ -76,7 +76,7 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('ADMIN','BLOGGER')")
     public ResponseEntity<?> updateUser(@NonNull @PathVariable long id,
                                         @RequestBody(required = false) UserDTO userDTO) throws Exception {
-        UserInfo userInfo = userService.updateUser(id, userDTO);
+        UserResponseDTO userInfo = userService.updateUser(id, userDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
