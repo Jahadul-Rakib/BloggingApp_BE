@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
+import com.rakib.service.SecurityService;
 import com.rakib.service.dto.RequestData;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.service.RoleService;
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import com.rakib.domain.Role;
 import com.rakib.service.UserService;
@@ -36,13 +38,18 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
     private final JWTUtilities jwtUtilities;
+    private final SecurityService securityService;
 
-    public UserController(AuthenticationManager authenticationManager, UserService userService, RoleService roleService, JWTUtilities jwtUtilities) {
+    public UserController(AuthenticationManager authenticationManager,
+                          UserService userService,
+                          RoleService roleService,
+                          JWTUtilities jwtUtilities,
+                          SecurityService securityService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.roleService = roleService;
         this.jwtUtilities = jwtUtilities;
-
+        this.securityService = securityService;
     }
 
     @PostMapping("user")
@@ -95,6 +102,13 @@ public class UserController {
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
+    @DeleteMapping("logout")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> logOutUser() throws Exception {
+        String logOut = securityService.deleteByUserName();
+        return ResponseEntity.ok().body(ImmutableMap.of("data", logOut));
+    }
+
     @PostMapping("login")
     @PreAuthorize("permitAll()")
     public ResponseEntity<?> getLogin(@RequestBody RequestData requestData) {
@@ -103,8 +117,10 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtUtilities.jwtTokenProvider();
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+        String username = ((UserDetails)authentication1.getPrincipal()).getUsername();
+        securityService.save(username, token);
         return ResponseEntity.ok().header("Authorization",
-                "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token, "userType", authorities));
+                "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token, "userType", authentication1.getAuthorities()));
     }
 }

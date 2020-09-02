@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -116,8 +117,8 @@ public class BlogServiceImpl implements BlogService {
                 blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
             }
 
-            String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-            UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(userName);
+            String username = ((UserDetails)authentication.getPrincipal()).getUsername();
+            UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
             Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
             if (byUserInfoAndBlog.isPresent()) {
@@ -161,8 +162,9 @@ public class BlogServiceImpl implements BlogService {
                 blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
             }
 
-            String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-            UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(userName);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = ((UserDetails)authentication.getPrincipal()).getUsername();
+            UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
             Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog.get());
             if (byUserInfoAndBlog.isPresent()) {
@@ -266,8 +268,9 @@ public class BlogServiceImpl implements BlogService {
                     blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
                 }
 
-                String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-                UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(userName);
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                String username = ((UserDetails)authentication.getPrincipal()).getUsername();
+                UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
                 Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
                 if (byUserInfoAndBlog.isPresent()) {
