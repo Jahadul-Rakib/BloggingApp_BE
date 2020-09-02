@@ -1,6 +1,7 @@
 package com.rakib.controller.api;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
 import com.rakib.service.dto.RequestData;
@@ -56,6 +57,13 @@ public class UserController {
     public ResponseEntity<?> saveRole(@RequestBody Role userRole) throws Exception {
         Role saveRole = roleService.saveRole(userRole);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveRole));
+    }
+
+    @GetMapping("role")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getRole() {
+        List<Role> getRole = roleService.getRole();
+        return ResponseEntity.ok().body(ImmutableMap.of("data", getRole));
     }
 
     @GetMapping("user")

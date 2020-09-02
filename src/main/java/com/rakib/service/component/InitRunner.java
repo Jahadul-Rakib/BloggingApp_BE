@@ -5,7 +5,6 @@ import com.rakib.domain.Role;
 import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.domain.repo.UserRoleRepo;
 import com.rakib.domain.enums.Roles;
-import com.rakib.service.RoleService;
 import com.rakib.service.dto.UserDTO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,8 +34,8 @@ public class InitRunner implements CommandLineRunner {
     }
 
     private void addUser() {
-        Role roleAdmin = addRoles(Roles.ADMIN);
-        Role roleBlogger = addRoles(Roles.BLOGGER);
+        Role roleAdmin = addRoles(1L,Roles.ADMIN);
+        Role roleBlogger = addRoles(2L,Roles.BLOGGER);
 
         UserDTO adminDTO = new UserDTO();
         adminDTO.setUserName("Admin");
@@ -80,9 +79,10 @@ public class InitRunner implements CommandLineRunner {
         }
     }
 
-    private Role addRoles(Roles roles) {
+    private Role addRoles(Long id, Roles roles) {
         Role role = new Role();
         role.setName(roles);
+        role.setId(id);
         Optional<Role> byRole = userRoleRepo.findByName(roles);
         return byRole.orElseGet(() -> userRoleRepo.save(role));
     }

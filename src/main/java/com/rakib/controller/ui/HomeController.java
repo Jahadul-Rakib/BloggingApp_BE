@@ -18,4 +18,29 @@ public class HomeController {
     public String login(Model model){
         return "login";
     }
+    @GetMapping("login/user")
+    public String user(Model model){
+        return "user";
+    }
+    @GetMapping("login/admin")
+    public String admin(Model model){
+        return "admin";
+    }
+
+    @GetMapping("login/admin/allblogger")
+    public String adminAllBlogger(Model model){
+        return "adminbloggers";
+    }
+    @GetMapping("login/admin/pendingblogger")
+    public String adminPendingBlogger(Model model){
+        return "adminpendingbloggers";
+    }
+    @GetMapping("login/admin/pendingblog")
+    public String adminPendingBlog(Model model){
+        return "adminpendingblog";
+    }
+    @GetMapping("/login/admin/add")
+    public String adminCreate(Model model){
+        return "admincreate";
+    }
 }

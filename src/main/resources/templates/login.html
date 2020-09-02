@@ -1,27 +1,143 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
       lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head th:replace="header :: common-header"></head>
 
 <body>
 <div class="container">
     <div th:replace="header :: header-script"></div>
-    <div class="row h-100 justify-content-center align-items-center">
-        <form style="margin: 10%; position: center">
-            <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+    <div class="row">
+        <div class="col-6">
+            <div class="row h-100 justify-content-center align-items-center">
+                <form id="userLogIn" style="margin: 10%; position: center">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Email address</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
+                            else.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <input type="password" class="form-control" id="exampleInputPassword1">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="login" style="alignment: right">Sign In</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1">
+        </div>
+        <div class="col-6" style="border-color: crimson; margin-top: 5px; border-width: 2px">
+            <div class="row h-100 justify-content-center align-items-center">
+                <form id="reg" style="margin-top: 100px">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="userName">User Name</label>
+                        <input type="text" class="form-control" id="userName" placeholder="1234 Main St">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" class="form-control" id="phone"
+                               placeholder="Apartment, studio, or floor">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="role">Role</label>
+                            <select id="role" class="form-control">
+                                <option selected>Choose...</option>
+                                <option value="2">BLOGGER</option>
+                                <option value="1">ADMIN</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="alignment: center;width: 100%" id="submitreg">
+                        Submit
+                    </button>
+                    <label id="demo"></label>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary" style="alignment: right">Submit</button>
-        </form>
+        </div>
     </div>
-
 </div>
+
+<script>
+    $(document).ready(function () {
+        $("#userLogIn").submit(function () {
+            let username = $("#exampleInputEmail1").val().trim();
+            let password = $("#exampleInputPassword1").val().trim();
+
+            let data = {
+                "data": '',
+                "userType": [
+                    {
+                        "id": '',
+                        "name": '',
+                        "authority": ''
+                    }
+                ]
+            }
+
+            if (username !== "" && password !== "") {
+                $.ajax({
+                    url: 'http://localhost:8080/api/v1/login',
+                    type: 'post',
+                    data: {username: username, password: password},
+                    success: function (response) {
+                        if (response === 1) {
+                            data = response.data;
+                            console.log(data)
+                        } else {
+                            alert("Invalid username and password!");
+                        }
+                    }
+                });
+            }
+
+        });
+        $("#reg").submit(function () {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/user',
+                type: 'post',
+                data: {
+                    userName: $("#userName").val().trim(),
+                    userPhone: $("#phone").val().trim(),
+                    userEmail: $("#email").val().trim(),
+                    userPassword: $("#password").val().trim(),
+                    roleId: $("#role").val().trim(),
+                    active: false
+                },
+                success: function (response) {
+                    if (response === 1) {
+                        alert("Registration successfull.");
+                        console.log(response.data)
+                    } else {
+                        alert("Registration Failed.");
+                        ("#demo").innerHTML = "Registration Failed.";
+                    }
+                }
+            });
+        });
+
+        /*            $.ajax({
+                        type: "POST",
+                        beforeSend: function(request) {
+                            request.setRequestHeader("Authority", authorizationToken);
+                        },
+                        url: "http://localhost:8080/api/v1/login",
+                        data: "json=" + escape(JSON.stringify(createRequestObject)),
+                        processData: false,
+                        success: function(msg) {
+                            $("#results").append("The result =" + StringifyPretty(msg));
+                        }
+                    });*/
+    });
+
+</script>
 </body>
 </html>

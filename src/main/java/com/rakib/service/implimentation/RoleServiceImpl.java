@@ -4,6 +4,7 @@ import com.rakib.domain.Role;
 import com.rakib.domain.repo.UserRoleRepo;
 import com.rakib.service.RoleService;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,6 +23,11 @@ public class RoleServiceImpl implements RoleService {
 		Role role = new Role();
 		role.setName(userRole.getName());
 		return roleRepo.save(role);
+	}
+
+	@Override
+	public List<Role> getRole() {
+		return roleRepo.findAll();
 	}
 
 

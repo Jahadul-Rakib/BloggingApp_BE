@@ -45,7 +45,7 @@ public class BlogController {
     }
 
     @GetMapping("blog")
-    @PreAuthorize("hasAnyAuthority('BLOGGER','ADMIN')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getBlog(@RequestParam(required = false) DataType action, Pageable pageable) throws Exception {
         Page<BlogDetailsDTO> blog = blogService.getBlog(action, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", blog));
