@@ -7,6 +7,7 @@ import javassist.NotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +19,11 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    public List<UserSecurityContext> listOfContext() {
+        return repo.findAll();
+    }
+
+    @Override
     public UserSecurityContext save(String user, String token) {
         UserSecurityContext context = new UserSecurityContext();
         context.setUser(user);
@@ -25,23 +31,22 @@ public class SecurityServiceImpl implements SecurityService {
         System.out.println(context);
         return repo.save(context);
     }
+
     @Override
-    public Optional<UserSecurityContext> findByToken(String token) {
-        return repo.findByToken(token);
+    public Optional<UserSecurityContext> findByUserName(String userName) {
+        return repo.findById(userName);
     }
+
     @Override
-    public String deleteByUserName() throws Exception {
+    public String deleteByUserName() throws NotFoundException {
         String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        try {
-            Optional<UserSecurityContext> user = repo.findByUser(userName);
-            if (user.isPresent()) {
-                repo.deleteById(userName);
-                return "Log Out Successfully.";
-            } else {
-                throw new NotFoundException("Token Not Found By User.");
-            }
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+
+        Optional<UserSecurityContext> user = repo.findById(userName);
+        if (user.isPresent()) {
+            repo.deleteById(userName);
+            return "Log Out Successfully.";
+        } else {
+            throw new NotFoundException("Token Not Found By User.");
         }
     }
 }

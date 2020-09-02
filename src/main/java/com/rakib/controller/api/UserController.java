@@ -102,9 +102,9 @@ public class UserController {
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
-    @DeleteMapping("logout")
+    @PostMapping("logout")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<?> logOutUser() throws Exception {
+    public ResponseEntity<?> logOutUser() throws NotFoundException {
         String logOut = securityService.deleteByUserName();
         return ResponseEntity.ok().body(ImmutableMap.of("data", logOut));
     }

@@ -1,5 +1,6 @@
 package com.rakib.config;
 
+import com.rakib.service.SecurityService;
 import com.rakib.utilities.JWTTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +23,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsServiceImpl userService;
+    private final SecurityService context;
 
-    public SecurityConfiguration(UserDetailsServiceImpl userService) {
+    public SecurityConfiguration(UserDetailsServiceImpl userService, SecurityService context) {
         this.userService = userService;
+        this.context = context;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.addFilterBefore(new JWTTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(new JWTTokenFilter(context), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests();
     }
 
