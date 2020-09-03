@@ -27,7 +27,7 @@
 
     <div class="row" style="margin: auto; padding: 20px">
 
-        <form id="reg" style="margin-top: 100px">
+        <form id="reg" style="margin-top: 70px;margin-bottom: 70px; alignment: center; width: 100%">
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="email">Email</label>
@@ -95,10 +95,11 @@
                 success: function (response) {
                     if (response) {
                         alert("Registration successfull.");
-                    } else {
-                        alert("Registration Failed.");
-                        $('#demo').innerHTML("Registration Failed.");
                     }
+                },
+                error: function (error) {
+                    $('#demo').html("Registration Failed.");
+                    alert(error.message.toString())
                 }
             });
         });

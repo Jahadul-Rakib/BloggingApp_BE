@@ -46,28 +46,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO saveUser(UserDTO user) throws Exception {
+    public UserResponseDTO saveUser(UserDTO user) throws DuplicateName {
         List<Role> roles = new ArrayList<>();
-        user.getRoleId().forEach(value -> {
+        for (Long value : user.getRoleId()) {
             Role role = userRoleRepo.getOne(value);
-            if (role.getName().equals(Roles.ADMIN)) {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-                boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
-                if (!authorized) {
-                    try {
-                        throw new Exception("To be Admin");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
             roles.add(role);
-        });
+        }
 
         Optional<UserInfo> byUserName = userInfoRepo.getUserInfoByUserName(user.getUserName());
         if (byUserName.isPresent()) {
-            throw new Exception("User Email Already Exist.");
+            throw new DuplicateName("User Email Already Exist.");
         }
 
         UserInfo userInfo = new UserInfo();

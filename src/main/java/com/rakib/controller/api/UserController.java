@@ -54,7 +54,7 @@ public class UserController {
 
     @PostMapping("user")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) throws Exception {
+    public ResponseEntity<?> saveUser(@Valid @RequestBody UserDTO user) throws DuplicateName {
         UserResponseDTO saveUser = userService.saveUser(user);
         return ResponseEntity.ok().body(ImmutableMap.of("data", saveUser));
     }
