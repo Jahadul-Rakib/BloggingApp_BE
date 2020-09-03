@@ -49,33 +49,34 @@
     </div>
     <div th:replace="header :: body-bottom-scripts"></div>
     <script>
+        $(document).ready(function () {
+            let number = $("#number").val().trim();
+            let name = $("#name").val().trim();
+            let email = $("#email").val().trim();
+            let phone = $("#phone").val().trim();
+            let status = $("#status").val().trim();
 
-        let number = $("#number").val().trim();
-        let name = $("#name").val().trim();
-        let email = $("#email").val().trim();
-        let phone = $("#phone").val().trim();
-        let status = $("#status").val().trim();
-
-        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('token')).split('=')[1];
-        $.ajax({
-            url: 'http://localhost:8080/api/v1/user',
-            contentType: 'application/json; charset=utf-8',
-            accept: 'application/json',
-            method: 'GET',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', cookieValue.toString());
-            },
-            data: {},
-            success: function (response) {
-                if (response) {
-                    console.log(response)
-                    alert("Get User Successful.");
+            const cookieValue = document.cookie.split('; ').find(row => row.startsWith('token')).split('=')[1];
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/user',
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Authorization": cookieValue.toString()
+                },
+                data: {},
+                success: function (response) {
+                    if (response) {
+                        console.log(response)
+                        alert("Get User Successful.");
+                    }
+                },
+                error: function (e) {
+                    console.log(JSON.stringify(e));
+                    alert(e.message())
                 }
-            },
-            error: function (e) {
-                console.log(JSON.stringify(e));
-                alert(e.message())
-            }
+            });
         });
     </script>
 </div>
