@@ -55,7 +55,6 @@
                 blogPostTime: '',
                 activeOrNot: false
             }
-
             $.ajax({
                 url: 'http://localhost:8080/api/v1/blog',
                 Authorization: token,
@@ -65,7 +64,7 @@
                 data: JSON.stringify(blog),
                 success: function (response) {
                     if (response) {
-                        data = response;
+                        console.log(response);
                         console.log(data)
                     }
                 },
