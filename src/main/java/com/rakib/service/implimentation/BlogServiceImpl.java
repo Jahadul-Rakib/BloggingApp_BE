@@ -59,8 +59,10 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogDTO saveBlog(BlogPayloadDTO blogDTO) throws NotFoundException {
-        Optional<UserInfo> user = userInfoRepo.findById(blogDTO.getUserId());
-        if (!user.isPresent()) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+        UserInfo user = userInfoRepo.getUserInfoByUserEmail(username);
+        if (nonNull(user)) {
             throw new NotFoundException("User Not Exist.");
         }
         Blog blog = new Blog();
@@ -68,7 +70,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setBlogTitle(blogDTO.getBlogTitle());
         blog.setBlogBody(blogDTO.getBlogBody());
         blog.setBlogPostTime(Instant.now());
-        blog.setUserInfo(user.get());
+        blog.setUserInfo(user);
 
         return blogMapper.toDTO(blogRepo.save(blog));
     }
@@ -117,7 +119,7 @@ public class BlogServiceImpl implements BlogService {
                 blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
             }
 
-            String username = ((UserDetails)authentication.getPrincipal()).getUsername();
+            String username = ((UserDetails) authentication.getPrincipal()).getUsername();
             UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
             Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
@@ -163,7 +165,7 @@ public class BlogServiceImpl implements BlogService {
             }
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = ((UserDetails)authentication.getPrincipal()).getUsername();
+            String username = ((UserDetails) authentication.getPrincipal()).getUsername();
             UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
             Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog.get());
@@ -269,7 +271,7 @@ public class BlogServiceImpl implements BlogService {
                 }
 
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                String username = ((UserDetails)authentication.getPrincipal()).getUsername();
+                String username = ((UserDetails) authentication.getPrincipal()).getUsername();
                 UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
                 Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
