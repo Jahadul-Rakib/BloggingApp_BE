@@ -118,7 +118,7 @@ public class UserController {
 
         String token = jwtUtilities.jwtTokenProvider();
         Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
-        String username = ((UserDetails)authentication1.getPrincipal()).getUsername();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         securityService.save(username, token);
         return ResponseEntity.ok().header("Authorization",
                 "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token, "userType", authentication1.getAuthorities()));

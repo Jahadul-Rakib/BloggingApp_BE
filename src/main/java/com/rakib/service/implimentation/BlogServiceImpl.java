@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -61,7 +62,7 @@ public class BlogServiceImpl implements BlogService {
     public BlogDTO saveBlog(BlogPayloadDTO blogDTO) throws NotFoundException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserInfo user = userInfoRepo.getUserInfoByUserEmail(username);
-        if (nonNull(user)) {
+        if (isNull(user)) {
             throw new NotFoundException("User Not Exist.");
         }
         Blog blog = new Blog();
