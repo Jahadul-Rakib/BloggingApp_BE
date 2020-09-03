@@ -34,28 +34,28 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDTO saveComment(CommentDTO commentDTO) throws NotFoundException {
+    public CommentDTO saveComment(CommentDTO commentDTO) throws Exception {
         Optional<UserInfo> user = userInfoRepo.getUserInfoByUserName(commentDTO.getUserName());
-        if (!user.isPresent()) {
-            throw new NotFoundException("User Not Found.");
-        }
-        Optional<Blog> blog = blogRepo.findById(commentDTO.getBlogId());
-        if (!blog.isPresent()) {
-            throw new NotFoundException("Blog Not Found.");
-        }
-        Comments comments = new Comments();
-        comments.setComment(commentDTO.getComment());
-        comments.setCommentTime(Instant.now());
-        comments.setUserInfo(user.get());
-        comments.setBlog(blog.get());
+        if (user.isPresent()) {
+            Optional<Blog> blog = blogRepo.findById(commentDTO.getBlogId());
+            if (blog.isPresent()) {
+                Comments comments = new Comments();
+                comments.setComment(commentDTO.getComment());
+                comments.setCommentTime(Instant.now());
+                comments.setUserInfo(user.get());
+                comments.setBlog(blog.get());
+                comments.setId(commentDTO.getId());
 
-        comments.setId(commentDTO.getId());
+                return commentMapper.toDTO(commentsRepo.save(comments));
 
-        return commentMapper.toDTO(commentsRepo.save(comments));
+            }
+            throw new Exception("Blog Not Found.");
+        }
+        throw new Exception("User Not Found");
     }
 
     @Override
-    public CommentDTO updateComment(Long id, CommentDTO commentDTO) throws NotFoundException {
+    public CommentDTO updateComment(Long id, CommentDTO commentDTO) throws Exception {
         Optional<Comments> comment = commentsRepo.findById(id);
         if (comment.isPresent()) {
             commentDTO.setId(id);

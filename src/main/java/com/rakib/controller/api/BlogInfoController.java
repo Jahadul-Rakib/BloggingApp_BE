@@ -33,13 +33,13 @@ public class BlogInfoController {
 
     @PostMapping("comment")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<?> saveComment(@RequestBody CommentDTO commentDTO) throws NotFoundException {
+    public ResponseEntity<?> saveComment(@RequestBody CommentDTO commentDTO) throws Exception {
         CommentDTO comments = commentService.saveComment(commentDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", comments));
     }
     @PutMapping("comment/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<?> updateComment(@PathVariable Long id, @RequestBody CommentDTO commentDTO) throws NotFoundException {
+    public ResponseEntity<?> updateComment(@PathVariable Long id, @RequestBody CommentDTO commentDTO) throws Exception {
         CommentDTO comments = commentService.updateComment(id, commentDTO);
         return ResponseEntity.ok().body(ImmutableMap.of("data", comments));
     }

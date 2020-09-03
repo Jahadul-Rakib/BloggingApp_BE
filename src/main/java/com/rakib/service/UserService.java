@@ -1,5 +1,6 @@
 package com.rakib.service;
 
+import com.rakib.domain.enums.DataType;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.service.dto.response.UserResponseDTO;
 import javassist.NotFoundException;
@@ -10,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 public interface UserService {
 	UserResponseDTO saveUser(UserDTO userInfo) throws DuplicateName;
 	UserResponseDTO getUserByEmail(String email);
-	Page<UserResponseDTO> getUsers(Pageable pageable);
+	Page<UserResponseDTO> getUsers(DataType dataType, Pageable pageable);
 	UserResponseDTO updateUser(long id, UserDTO userDTO) throws Exception;
 
 	String deleteUser(long id) throws NotFoundException;

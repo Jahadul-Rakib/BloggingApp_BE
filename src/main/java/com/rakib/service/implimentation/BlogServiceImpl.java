@@ -96,43 +96,42 @@ public class BlogServiceImpl implements BlogService {
         } else {
             allBlog = blogRepo.findAllByActive(true);
         }
-        if (!allBlog.isPresent()) {
-            throw new NotFoundException("No Data Found.");
-        }
-        for (Blog blog : allBlog.get()) {
-            BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
-            blogDetailsDTO.setBlog(blogMapper.toDTO(blog));
-            Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog);
-            List<CommentDTO> commentDTOS = new ArrayList<>();
-            commentsByBlog.ifPresent(commentsList -> commentsList.forEach(comments -> {
-                commentDTOS.add(commentMapper.toDTO(comments));
-            }));
-            blogDetailsDTO.setCommentList(commentDTOS);
-            Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog);
-            if (likeOrDislikeByBlog.isPresent()) {
-                likeOrDislikeByBlog.get().forEach(likeDislike -> {
-                    if (likeDislike.isLikeOrDislike()) {
-                        totalLike.getAndIncrement();
-                    }
-                });
-                blogDetailsDTO.setTotalLike(totalLike.get());
-                blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
-            }
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
-
-            Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
-            if (byUserInfoAndBlog.isPresent()) {
-                if (byUserInfoAndBlog.get().isLikeOrDislike()) {
-                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.LIKE);
-                } else {
-                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.DISLIKE);
+        if (allBlog.isPresent()) {
+            for (Blog blog : allBlog.get()) {
+                BlogDetailsDTO blogDetailsDTO = new BlogDetailsDTO();
+                blogDetailsDTO.setBlog(blogMapper.toDTO(blog));
+                Optional<List<Comments>> commentsByBlog = commentsRepo.findByBlog(blog);
+                List<CommentDTO> commentDTOS = new ArrayList<>();
+                commentsByBlog.ifPresent(commentsList -> commentsList.forEach(comments -> {
+                    commentDTOS.add(commentMapper.toDTO(comments));
+                }));
+                blogDetailsDTO.setCommentList(commentDTOS);
+                Optional<List<LikeDislike>> likeOrDislikeByBlog = likeDislikeRepo.findByBlog(blog);
+                if (likeOrDislikeByBlog.isPresent()) {
+                    likeOrDislikeByBlog.get().forEach(likeDislike -> {
+                        if (likeDislike.isLikeOrDislike()) {
+                            totalLike.getAndIncrement();
+                        }
+                    });
+                    blogDetailsDTO.setTotalLike(totalLike.get());
+                    blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
                 }
-            } else {
-                blogDetailsDTO.setCurrentUserLikeOrDislike(Action.NOACTION);
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
+
+                Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
+                if (byUserInfoAndBlog.isPresent()) {
+                    if (byUserInfoAndBlog.get().isLikeOrDislike()) {
+                        blogDetailsDTO.setCurrentUserLikeOrDislike(Action.LIKE);
+                    } else {
+                        blogDetailsDTO.setCurrentUserLikeOrDislike(Action.DISLIKE);
+                    }
+                } else {
+                    blogDetailsDTO.setCurrentUserLikeOrDislike(Action.NOACTION);
+                }
+                blogDetailsDTOS.add(blogDetailsDTO);
             }
 
-            blogDetailsDTOS.add(blogDetailsDTO);
         }
 
         return new PageImpl<BlogDetailsDTO>(blogDetailsDTOS, pageable, blogDetailsDTOS.size());

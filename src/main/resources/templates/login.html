@@ -60,7 +60,7 @@
                         Submit
                     </button>
                     <div class="row" style="margin: 40px">
-                        <label id="demo" style="color: crimson"></label>
+                        <label id="demo" style="color: #dc143c"></label>
                     </div>
 
                 </form>
@@ -84,7 +84,8 @@
                         "name": '',
                         "authority": ''
                     }
-                ]
+                ],
+                "username":''
             }
 
             if (username !== "" && password !== "") {
@@ -98,6 +99,8 @@
                         if (response) {
                             data = response;
                             token = data.data;
+                            currentUsername = data.username;
+                            console.log(this.data);
                             if (data.userType.forEach(value => {
                                 if (value.authority === 'ADMIN') {
                                     window.location = '/login/admin'

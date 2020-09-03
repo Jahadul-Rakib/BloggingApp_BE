@@ -1,6 +1,7 @@
 package com.rakib.service.implimentation;
 
 import com.rakib.domain.Role;
+import com.rakib.domain.enums.DataType;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
 import com.rakib.service.dto.response.UserResponseDTO;
@@ -69,12 +70,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserResponseDTO> getUsers(Pageable pageable) {
-        Page<UserInfo> all = userInfoRepo.findAll(pageable);
+    public Page<UserResponseDTO> getUsers(DataType dataType, Pageable pageable) {
         List<UserResponseDTO> responseDTOS = new ArrayList<>();
-        all.forEach(info -> {
-            responseDTOS.add(userMapper.toDTO(info));
-        });
+        if (dataType == null){
+            Page<UserInfo> all = userInfoRepo.findAll(pageable);
+            all.forEach(info -> {
+                responseDTOS.add(userMapper.toDTO(info));
+            });
+        } else if (dataType.equals(DataType.ACTIVE)) {
+            Optional<List<UserInfo>> allByActive = userInfoRepo.findAllByActive(true, pageable);
+            allByActive.ifPresent(userInfos -> userInfos.forEach(info -> {
+                responseDTOS.add(userMapper.toDTO(info));
+            }));
+        } else if (dataType.equals(DataType.INACTIVE)) {
+            Optional<List<UserInfo>> allByActive = userInfoRepo.findAllByActive(false, pageable);
+            allByActive.ifPresent(userInfos -> userInfos.forEach(info -> {
+                responseDTOS.add(userMapper.toDTO(info));
+            }));
+        }
+
         return new PageImpl<UserResponseDTO>(responseDTOS, pageable, responseDTOS.size());
     }
 

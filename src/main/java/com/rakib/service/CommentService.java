@@ -5,7 +5,7 @@ import com.rakib.service.dto.CommentDTO;
 import javassist.NotFoundException;
 
 public interface CommentService {
-    CommentDTO saveComment(CommentDTO commentDTO) throws NotFoundException;
+    CommentDTO saveComment(CommentDTO commentDTO) throws Exception;
 
-    CommentDTO updateComment(Long id, CommentDTO commentDTO) throws NotFoundException;
+    CommentDTO updateComment(Long id, CommentDTO commentDTO) throws Exception;
 }

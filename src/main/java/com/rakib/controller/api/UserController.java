@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
+import com.rakib.domain.enums.DataType;
 import com.rakib.service.SecurityService;
 import com.rakib.service.dto.RequestData;
 import com.rakib.service.dto.UserDTO;
@@ -75,8 +76,8 @@ public class UserController {
 
     @GetMapping("user")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> getUser(Pageable pageable) {
-        Page<UserResponseDTO> userInfo = userService.getUsers(pageable);
+    public ResponseEntity<?> getUser(@RequestParam(required = false) DataType dataType, Pageable pageable) {
+        Page<UserResponseDTO> userInfo = userService.getUsers(dataType, pageable);
         return ResponseEntity.ok().body(ImmutableMap.of("data", userInfo));
     }
 
@@ -120,7 +121,8 @@ public class UserController {
         Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         securityService.save(username, token);
-        return ResponseEntity.ok().header("Authorization",
-                "Bearer " + token).body(ImmutableMap.of("data", "Bearer " + token, "userType", authentication1.getAuthorities()));
+        return ResponseEntity.ok().header("Authorization", "Bearer " + token)
+                .body(ImmutableMap.of("data", "Bearer " + token,
+                        "userType", authentication1.getAuthorities(), "username", username));
     }
 }
