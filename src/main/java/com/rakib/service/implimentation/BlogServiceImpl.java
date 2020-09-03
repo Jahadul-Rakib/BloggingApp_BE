@@ -59,8 +59,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogDTO saveBlog(BlogPayloadDTO blogDTO) throws NotFoundException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserInfo user = userInfoRepo.getUserInfoByUserEmail(username);
         if (nonNull(user)) {
             throw new NotFoundException("User Not Exist.");
@@ -118,8 +117,7 @@ public class BlogServiceImpl implements BlogService {
                 blogDetailsDTO.setTotalLike(totalLike.get());
                 blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
             }
-
-            String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
             UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
             Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);
@@ -164,8 +162,7 @@ public class BlogServiceImpl implements BlogService {
                 blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
             }
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
             UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
             Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog.get());
@@ -220,8 +217,8 @@ public class BlogServiceImpl implements BlogService {
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
             if (!authorized) {
-                String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-                UserInfo userInfo = userInfoRepo.getUserInfoByUserEmail(principal);
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                UserInfo userInfo = userInfoRepo.getUserInfoByUserEmail(username);
                 if (userInfo.equals(blog.get().getUserInfo())) {
                     blogRepo.findById(id);
                 } else {
@@ -270,8 +267,7 @@ public class BlogServiceImpl implements BlogService {
                     blogDetailsDTO.setTotalDisLike(likeOrDislikeByBlog.get().size() - totalLike.get());
                 }
 
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
                 UserInfo userInfoByUserEmail = userInfoRepo.getUserInfoByUserEmail(username);
 
                 Optional<LikeDislike> byUserInfoAndBlog = likeDislikeRepo.findByUserInfoAndBlog(userInfoByUserEmail, blog);

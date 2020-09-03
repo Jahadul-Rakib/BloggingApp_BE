@@ -55,10 +55,13 @@
                             </select>
                         </div>
                     </div>
-                    <label id="demo"></label>
+
                     <button type="submit" class="btn btn-primary" style="alignment: center;width: 100%" id="submitreg">
                         Submit
                     </button>
+                    <div class="row" style="margin: 40px">
+                        <label id="demo" style="color: crimson"></label>
+                    </div>
 
                 </form>
             </div>
@@ -94,9 +97,7 @@
                     success: function (response) {
                         if (response) {
                             data = response;
-                            console.log(data)
-                            document.cookie="token='"+data.data+"'";
-                            //console.log(cookie);
+                            token = data.data;
                             if (data.userType.forEach(value => {
                                 if (value.authority === 'ADMIN') {
                                     window.location = '/login/admin'

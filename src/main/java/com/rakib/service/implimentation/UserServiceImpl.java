@@ -1,7 +1,6 @@
 package com.rakib.service.implimentation;
 
 import com.rakib.domain.Role;
-import com.rakib.domain.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
 import com.rakib.service.dto.response.UserResponseDTO;
@@ -12,10 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +19,6 @@ import com.rakib.domain.repo.UserInfoRepo;
 import com.rakib.service.UserService;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 

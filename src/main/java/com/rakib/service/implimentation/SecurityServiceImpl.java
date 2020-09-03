@@ -39,8 +39,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public String deleteByUserName() throws NotFoundException {
-        String userName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<UserSecurityContext> user = repo.findById(userName);
         if (user.isPresent()) {
             repo.deleteById(userName);

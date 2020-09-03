@@ -1,7 +1,6 @@
 package com.rakib.controller.api;
 
 import com.google.common.collect.ImmutableMap;
-import com.rakib.domain.Blog;
 import com.rakib.domain.enums.DataType;
 import com.rakib.service.BlogService;
 import com.rakib.service.dto.BlogDTO;
