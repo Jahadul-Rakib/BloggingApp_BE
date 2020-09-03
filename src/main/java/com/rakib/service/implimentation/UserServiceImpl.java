@@ -4,7 +4,6 @@ import com.rakib.domain.Role;
 import com.rakib.domain.enums.Roles;
 import com.rakib.service.dto.UserDTO;
 import com.rakib.domain.repo.UserRoleRepo;
-import com.rakib.service.dto.response.BlogDetailsDTO;
 import com.rakib.service.dto.response.UserResponseDTO;
 import com.rakib.service.mapper.UserMapper;
 import javassist.NotFoundException;
@@ -47,7 +46,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO saveUser(UserDTO user) throws DuplicateName {
+    public UserResponseDTO saveUser(UserDTO user) throws Exception {
         List<Role> roles = new ArrayList<>();
         user.getRoleId().forEach(value -> {
             Role role = userRoleRepo.getOne(value);
@@ -57,7 +56,7 @@ public class UserServiceImpl implements UserService {
                 boolean authorized = authorities.contains(new SimpleGrantedAuthority("ADMIN"));
                 if (!authorized) {
                     try {
-                        throw new Exception("To make an admin, you should be also an admin.");
+                        throw new Exception("To be Admin");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -68,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserInfo> byUserName = userInfoRepo.getUserInfoByUserName(user.getUserName());
         if (byUserName.isPresent()) {
-            throw new DuplicateName("User Email Already Exist.");
+            throw new Exception("User Email Already Exist.");
         }
 
         UserInfo userInfo = new UserInfo();

@@ -52,14 +52,14 @@
                             <select id="role" class="form-control">
                                 <option selected>Choose...</option>
                                 <option value="2">BLOGGER</option>
-                                <option value="1">ADMIN</option>
                             </select>
                         </div>
                     </div>
+                    <label id="demo"></label>
                     <button type="submit" class="btn btn-primary" style="alignment: center;width: 100%" id="submitreg">
                         Submit
                     </button>
-                    <label id="demo"></label>
+
                 </form>
             </div>
         </div>
@@ -83,7 +83,7 @@
                     }
                 ]
             }
-            //debugger
+
             if (username !== "" && password !== "") {
                 $.ajax({
                     url: 'http://localhost:8080/api/v1/login',
@@ -95,16 +95,16 @@
                         if (response) {
                             data = response;
                             console.log(data)
-                            //let cookie = document.cookie("token",data.data,1);
+                            document.cookie="token='"+data.data+"'";
                             //console.log(cookie);
                             if (data.userType.forEach(value => {
-                                if (value.authority === 'ADMIN'){
+                                if (value.authority === 'ADMIN') {
                                     window.location = '/login/admin'
                                 }
-                                if (value.authority === 'BLOGGER'){
+                                if (value.authority === 'BLOGGER') {
                                     window.location = '/login/user'
                                 }
-                            }));
+                            })) ;
                         } else {
                             alert("Invalid username and password!");
                         }
@@ -115,21 +115,32 @@
         });
         $("#reg").submit(function (e) {
             e.preventDefault();
+
+            let name = $("#userName").val().trim();
+            let phone =$("#phone").val().trim();
+            let email = $("#email").val().trim();
+            let pass =  $("#password").val().trim();
+            let userType = $("#role").val().trim();
+
             $.ajax({
-                url: 'http://localhost:8089/api/v1/user',
-                type: 'post',
-                data: {
-                    userName: $("#userName").val().trim(),
-                    userPhone: $("#phone").val().trim(),
-                    userEmail: $("#email").val().trim(),
-                    userPassword: $("#password").val().trim(),
-                    roleId: $("#role").val().trim(),
+                url: 'http://localhost:8080/api/v1/user',
+                contentType: 'application/json',
+                accept: 'application/json',
+                method: 'post',
+                data: JSON.stringify({
+                    userName: name,
+                    userPhone: phone,
+                    userEmail: email,
+                    userPassword:pass,
+                    roleId: [userType],
                     active: false
-                },
+                }),
                 success: function (response) {
-                    if (response === 1) {
+                    if (response) {
+/*                        let data = {userId: '', userName: '', userPhone: '', userEmail: '', active: ''}
+                        let loaded = response.data;*/
                         alert("Registration successfull.");
-                        console.log(response.data)
+                        console.log(loaded)
                     } else {
                         alert("Registration Failed.");
                         //("#demo").innerHTML = "Registration Failed.";

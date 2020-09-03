@@ -24,7 +24,61 @@
             <a class="nav-link" th:href="@{/login/admin/add}">Add Admin</a>
         </li>
     </ul>
+    <div class="row">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">No</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Active/Inactive</th>
+                <th scope="col">Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
     <div th:replace="header :: body-bottom-scripts"></div>
+    <script>
+
+/*      let name = $("#userName").val().trim();
+        let phone = $("#phone").val().trim();
+        let email = $("#email").val().trim();
+        let pass = $("#password").val().trim();
+        let userType = $("#role").val().trim();*/
+        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('token')).split('=')[1];
+
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/user',
+            Authorization: cookieValue.toString(),
+            contentType: 'application/json',
+            accept: 'application/json',
+            method: 'GET',
+            success: function (response) {
+                if (response) {
+                    console.log(response)
+                    alert("Get User successfull.");
+                } else {
+                    console.log(cookieValue.toString());
+                    alert("Registration Failed.");
+                    $('#demo').innerHTML = " Failed.";
+                }
+            },
+            error:function(e){
+                console.log(JSON.stringify(e));
+                alert(e.message())
+            }
+        });
+    </script>
 </div>
 </body>
 </html>
