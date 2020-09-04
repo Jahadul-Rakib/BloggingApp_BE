@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head th:replace="header :: common-header"></head>
+
+<body>
+<div class="container">
+    <div th:replace="header :: header-script"></div>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link " th:href="@{/login/user}">Post Blogs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" th:href="@{/login/user/blog}">My Blogs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/login/user/all}">All Blogs</a>
+        </li>
+
+    </ul>
+
+    <div class="row" style="margin: 50px">
+
+    </div>
+    <div class="row">
+        <label id="demo"></label>
+    </div>
+
+    <div th:replace="header :: body-bottom-scripts"></div>
+</div>
+<script>
+    $(document).ready(function () {
+
+    });
+</script>
+</body>
+</html>

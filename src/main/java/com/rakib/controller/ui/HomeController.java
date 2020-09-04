@@ -22,6 +22,14 @@ public class HomeController {
     public String user(Model model){
         return "user";
     }
+    @GetMapping("login/user/blog")
+    public String userBlog(Model model){
+        return "userblog";
+    }
+    @GetMapping("login/user/all")
+    public String userAllBlog(Model model){
+        return "userblogall";
+    }
     @GetMapping("login/admin")
     public String admin(Model model){
         return "admin";

@@ -85,7 +85,7 @@
                         "authority": ''
                     }
                 ],
-                "username":''
+                "username": ''
             }
 
             if (username !== "" && password !== "") {
@@ -98,7 +98,8 @@
                     success: function (response) {
                         if (response) {
                             data = response;
-                            token = data.data;
+                            setCookie('token', data.data, 7);
+                            setCookie('username', data.username, 7);
                             currentUsername = data.username;
                             console.log(this.data);
                             if (data.userType.forEach(value => {
@@ -121,9 +122,9 @@
             e.preventDefault();
 
             let name = $("#userName").val().trim();
-            let phone =$("#phone").val().trim();
+            let phone = $("#phone").val().trim();
             let email = $("#email").val().trim();
-            let pass =  $("#password").val().trim();
+            let pass = $("#password").val().trim();
             let userType = $("#role").val().trim();
 
             $.ajax({
@@ -135,19 +136,15 @@
                     userName: name,
                     userPhone: phone,
                     userEmail: email,
-                    userPassword:pass,
+                    userPassword: pass,
                     roleId: [userType],
                     active: false
                 }),
                 success: function (response) {
                     if (response) {
-/*                        let data = {userId: '', userName: '', userPhone: '', userEmail: '', active: ''}
-                        let loaded = response.data;*/
-                        alert("Registration successfull.");
-                        console.log(loaded)
+                        $('#demo').innerHTML("Registration Successful.");
                     } else {
                         alert("Registration Failed.");
-                        //("#demo").innerHTML = "Registration Failed.";
                         $('#demo').innerHTML("Registration Failed.");
                     }
                 }

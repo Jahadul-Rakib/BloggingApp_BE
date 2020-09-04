@@ -9,14 +9,15 @@
     <div th:replace="header :: header-script"></div>
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link active" href="#">Post Blogs</a>
+            <a class="nav-link active" th:href="@{/login/user}">Post Blogs</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">All Blogs</a>
+            <a class="nav-link" th:href="@{/login/user/blog}">My Blogs</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">My Blogs</a>
+            <a class="nav-link" th:href="@{/login/user/all}">All Blogs</a>
         </li>
+
     </ul>
 
     <div class="row" style="margin: 50px">
@@ -46,6 +47,7 @@
     $(document).ready(function () {
         $("#save").click(function (e) {
             e.preventDefault();
+
             let title = $("#title").val().trim();
             let body = $("#blog").val().trim();
             let blog = {
@@ -55,24 +57,22 @@
                 blogPostTime: '',
                 activeOrNot: false
             }
-            $.ajax({
-                url: 'http://localhost:8080/api/v1/blog',
-                Authorization: token,
-                contentType: 'application/json',
-                accept: 'application/json',
-                method: 'post',
-                data: JSON.stringify(blog),
-                success: function (response) {
-                    if (response) {
-                        console.log(response);
-                        console.log(data)
-                    }
-                },
-                error: function (error) {
-                    $('#demo').html("Post Failed.");
-                    alert(error.message.toString())
-                }
-            });
+            axios.post('http://localhost:8080/api/v1/blog',
+                blog,
+                {
+                    headers:
+                        {
+                            'Authorization': getCookie('token'),
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': "*/*"
+                        }
+                })
+                .then(value => {
+                    console.log(value);
+                })
+                .catch(reason => {
+                    console.log(reason)
+                })
         });
     });
 </script>
