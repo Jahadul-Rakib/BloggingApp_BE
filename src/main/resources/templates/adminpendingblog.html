@@ -37,17 +37,39 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
+
+            </tbody>
         </table>
     </div>
     <div th:replace="header :: body-bottom-scripts"></div>
+    <script>
+        $(document).ready(function () {
+
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/blog',
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Authorization": getCookie('token')
+                },
+                data: {action : 'INACTIVE'},
+                success: function (response) {
+                    if (response) {
+                        let data = response.data.content;
+                        let table = document.querySelector("table");
+                        generateTable(table, data);
+
+                    }
+                },
+                error: function (e) {
+                    console.log(JSON.stringify(e));
+                    alert(e.message())
+                }
+            });
+        });
+    </script>
 </div>
+
 </body>
 </html>

@@ -37,39 +37,43 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td scope="row" id="number"></td>
-                <td scope="row" id="name"></td>
-                <td scope="row" id="email"></td>
-                <td scope="row" id="phone"></td>
-                <td scope="row" id="status"></td>
-                <td scope="row" id="delete"></td>
-            </tr>
+
+            </tbody>
         </table>
     </div>
     <div th:replace="header :: body-bottom-scripts"></div>
     <script>
         $(document).ready(function () {
-            let number = $("#number").val().trim();
+/*            let number = $("#number").val().trim();
             let name = $("#name").val().trim();
             let email = $("#email").val().trim();
             let phone = $("#phone").val().trim();
-            let status = $("#status").val().trim();
+            let status = $("#status").val().trim();*/
+            let user = {
+                active: '',
+                userEmail: '',
+                userId: '',
+                userName: '',
+                userPhone: ''
+            }
 
-            //const cookieValue = document.cookie.split('; ').find(row => row.startsWith('token')).split('=')[1];
             $.ajax({
                 url: 'http://localhost:8080/api/v1/user',
                 method: 'GET',
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
-                    "Authorization": token
+                    "Authorization": getCookie('token')
                 },
-                data: {},
+                data: {dataType: 'ACTIVE'},
                 success: function (response) {
                     if (response) {
-                        console.log(response)
-                        alert("Get User Successful.");
+                        let user = response.data.content;
+                        let table = document.querySelector("table");
+                        //let data = Object.keys(user[0]);
+                        //generateTableHead(table, data);
+                        generateTable(table, user);
+
                     }
                 },
                 error: function (e) {

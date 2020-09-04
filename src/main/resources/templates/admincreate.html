@@ -53,6 +53,7 @@
                     <select id="role" class="form-control">
                         <option selected>Choose...</option>
                         <option value="1">ADMIN</option>
+                        <option value=2>BLOGGER</option>
                     </select>
                 </div>
             </div>
@@ -79,7 +80,7 @@
 
             $.ajax({
                 url: 'http://localhost:8080/api/v1/user',
-                Authorization: token,
+                Authorization: getCookie('token'),
                 contentType: 'application/json',
                 accept: 'application/json',
                 method: 'post',
