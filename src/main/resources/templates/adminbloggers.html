@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
       lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head th:replace="header :: common-header"></head>
+<head th:replace="header :: common-header"/>
 
 <body>
 <div class="container">
@@ -34,6 +34,8 @@
                 <th scope="col">Phone</th>
                 <th scope="col">Status</th>
                 <th scope="col">Delete</th>
+                <th scope="col">Active</th>
+                <th scope="col">Deactive</th>
             </tr>
             </thead>
             <tbody>
@@ -53,10 +55,10 @@
                 userPhone: null
             }
 
-            function deleteBlog(id){
+            function deleteBlog(id) {
                 let n = Number(id)
                 $.ajax({
-                    url: 'http://localhost:8080/api/v1/user/"'+n+'"',
+                    url: 'http://localhost:8080/api/v1/user/"' + n + '"',
                     method: 'delete',
                     headers: {
                         "Content-Type": "application/json",
@@ -75,17 +77,18 @@
                     }
                 });
             }
-            function activeBlog(id){
+
+            function activeBlog(id) {
                 let n = Number(id)
                 $.ajax({
-                    url: 'http://localhost:8080/api/v1/user/"'+n+'"',
+                    url: 'http://localhost:8080/api/v1/user/"' + n + '"',
                     method: 'put',
                     headers: {
                         "Content-Type": "application/json",
                         "Accept": "application/json",
                         "Authorization": getCookie('token')
                     },
-                    data: {active:true},
+                    data: {active: true},
                     success: function (response) {
                         if (response) {
                             alert('updated')
@@ -97,17 +100,18 @@
                     }
                 });
             }
-            function deActiveBlog(id){
+
+            function deActiveBlog(id) {
                 let n = Number(id)
                 $.ajax({
-                    url: 'http://localhost:8080/api/v1/user/"'+n+'"',
+                    url: 'http://localhost:8080/api/v1/user/"' + n + '"',
                     method: 'put',
                     headers: {
                         "Content-Type": "application/json",
                         "Accept": "application/json",
                         "Authorization": getCookie('token')
                     },
-                    data: {active:true},
+                    data: {active: true},
                     success: function (response) {
                         if (response) {
                             alert('updated')
@@ -134,21 +138,19 @@
                         let users = response.data.content;
                         users.forEach(val => {
                             let value = user = val;
-                            var row =
+                            let row =
                                 '<tr>' +
                                 '<td>"' + value.userId + '"</td>' +
                                 '<td>"' + value.userName + '"</td>' +
                                 '<td>"' + value.userPhone + '"</td>' +
                                 '<td>"' + value.userEmail + '"</td>' +
                                 '<td>"' + value.active + '"</td>' +
-                                '<td><button onclick="deleteBlog("' + value.id + '")">Delete</button></td>' +
-                                '<td><button onclick="activeBlog("' + value.id + '")">Active</button></td>' +
-                                '<td><button onclick="deActiveBlog("' + value.id + '")">DeActive</button></td>' +
+                                '<td><button class="btn btn-danger" onclick="deleteBlog("' + value.userId + '")">Delete</button></td>' +
+                                '<td><button class="btn btn-primary" onclick="activeBlog("' + value.userId + '")">Active</button></td>' +
+                                '<td><button class="btn btn-danger" onclick="deActiveBlog("' + value.userId + '")">DeActive</button></td>' +
                                 '</tr>';
                             $('#tableid').append(row);
                         })
-
-
                     }
                 },
                 error: function (e) {
