@@ -136,8 +136,7 @@
                 success: function (response) {
                     if (response) {
                         let users = response.data.content;
-                        users.forEach(val => {
-                            let value = user = val;
+                        users.forEach(value => {
                             let row =
                                 '<tr>' +
                                 '<td>"' + value.userId + '"</td>' +
